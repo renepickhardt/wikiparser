@@ -1,5 +1,7 @@
 package de.renepickhardt.imessages.wikiparser;
 
+import org.apache.commons.validator.routines.InetAddressValidator;
+
 public class LogItem {
 
 	private String timestamp;
@@ -42,7 +44,6 @@ public class LogItem {
 
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
 		return "ts: " + timestamp + "\tuser: " + user + "\ttitle: " + title + "\tcomment:" + comment;
 	}
 
@@ -54,19 +55,14 @@ public class LogItem {
 		this.action = action;
 	}
 
-	public static final String IPV4_NETWORK_REGEX = "\\A(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(/([1-9]|[1-2]d|3[0-2]))\\z";
-	public static final String IPV4_REGEX = "\\A(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}\\z";
-	public static final String IPV6_REGEX = "\\A(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\\z";
-
 	boolean isTitleAnIpAddress() {
 		try {
 			/**
 			 * Truncates "Benutzer:" from the title
 			 */
 			String titleSubstring = title.substring(9);
-			if (titleSubstring.matches(IPV4_REGEX)
-					|| titleSubstring.matches(IPV4_NETWORK_REGEX)
-					|| titleSubstring.matches(IPV6_REGEX)) {
+			InetAddressValidator ipAddressValidator = InetAddressValidator.getInstance();
+			if (ipAddressValidator.isValid(titleSubstring)) {
 				return true;
 			}
 		} catch (Exception e) {
@@ -74,5 +70,4 @@ public class LogItem {
 		}
 		return false;
 	}
-
 }
