@@ -199,9 +199,7 @@ public class App {
 						logItem.setTitle(new String(ch, start, length));
 						logTitle = false;
 					}
-
 				}
-
 			});
 
 			myReader.parse(is);
