@@ -44,7 +44,7 @@ public class LogItem {
 
 	@Override
 	public String toString() {
-		return "ts: " + timestamp + "\tuser: " + user + "\ttitle: " + title + "\tcomment:" + comment;
+		return "ts: " + timestamp + "\tuser: " + user + "\ttitle: " + title + "\tcomment:" + comment + "\taction:" + action;
 	}
 
 	public String getAction() {
