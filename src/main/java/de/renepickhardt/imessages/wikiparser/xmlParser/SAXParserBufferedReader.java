@@ -19,6 +19,8 @@ package de.renepickhardt.imessages.wikiparser.xmlParser;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -32,35 +34,42 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class SAXParserBufferedReader extends BufferedReader {
 
+	private final InputSource inputSource;
+	private final static Logger logger = Logger.getLogger(SAXParserBufferedReader.class.getCanonicalName());
+
 	/**
 	 * <p>
-	 * Creates a new reader instance and starts SAXparsing.
+	 * Creates a new reader instance.
 	 * <p>
 	 * @param in       a Reader.
-	 * @param handler  The SAX handler to use for parsing.
 	 * @param encoding of the input stream.
 	 * <p>
-	 * @throws java.io.IOException                            for any given
-	 *                                                        SAXException.
-	 * @throws javax.xml.parsers.ParserConfigurationException if a parser cannot
-	 *                                                        be created which
-	 *                                                        satisfies the
-	 *                                                        requested
-	 *                                                        configuration
 	 */
-	public SAXParserBufferedReader(Reader in, DefaultHandler handler, String encoding) throws IOException, ParserConfigurationException {
+	public SAXParserBufferedReader(Reader in, String encoding) {
 		super(in);
+		this.inputSource = new InputSource(in);
+		inputSource.setEncoding(encoding);
+	}
+
+	/**
+	 * <p>
+	 * Parse the current input stream with the given handler.
+	 * <p>
+	 * @param handler The SAX handler to use for parsing.
+	 * <p>
+	 * @return {@code true} iff parsing was successful.
+	 */
+	public boolean parse(DefaultHandler handler) {
 		try {
 			SAXParserFactory factory = SAXParserFactory.newInstance();
 			factory.setValidating(false);
 			SAXParser parser = factory.newSAXParser();
 
-			InputSource is = new InputSource(in);
-			is.setEncoding(encoding);
-
-			parser.parse(is, handler);
-		} catch (SAXException e) {
-			System.err.println(e.getMessage());
+			parser.parse(inputSource, handler);
+			return true;
+		} catch (SAXException | ParserConfigurationException | IOException e) {
+			logger.log(Level.FINE, "SAX parsing was unsuccesful.");
+			return false;
 		}
 	}
 }

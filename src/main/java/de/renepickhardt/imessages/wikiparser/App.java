@@ -3,13 +3,15 @@ package de.renepickhardt.imessages.wikiparser;
 import de.renepickhardt.imessages.wikiparser.xmlParser.SAXParserBufferedReader;
 import de.renepickhardt.imessages.wikiparser.xmlParser.WikiPageHandler;
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
-import javax.xml.parsers.ParserConfigurationException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.compress.compressors.CompressorInputStream;
@@ -52,25 +54,25 @@ import org.apache.commons.compress.compressors.CompressorStreamFactory;
 public class App {
 
 	public static final String ENCODING = "UTF-8";
+	private final static Logger logger = Logger.getLogger(App.class.getCanonicalName());
 
-	public static void main(String[] args) throws CompressorException, IOException, ParserConfigurationException {
+	public static void main(String[] args) {
 		String userHomeDir = System.getProperty("user.home");
 		String absoluteFilePath = userHomeDir + File.separator + "Downloads" + File.separator + "dewiki-20150301-pages-logging.xml.gz";
 		//dewiki-20150301-pages-articles1.xml.bz2
 		//dewiki-20150301-pages-logging.xml.gz
 		//dewiki-20150301-pages-meta-current3.xml.bz2
 
-		FileInputStream fin = new FileInputStream(absoluteFilePath);
-		BufferedInputStream bis = new BufferedInputStream(fin);
-		CompressorInputStream cis = new CompressorStreamFactory().createCompressorInputStream(bis);
-		InputStreamReader isr = new InputStreamReader(cis, ENCODING);
-		SAXParserBufferedReader br = new SAXParserBufferedReader(isr, new WikiPageHandler(), ENCODING);
-
-		String line;
-		int cnt = 0;
-		int disc = 1;
-		HashSet<String> set = new HashSet<>();
 		try {
+			SAXParserBufferedReader br = createSAXParserBufferedReader(absoluteFilePath);
+			if (!br.parse(new WikiPageHandler())) {
+				logger.log(Level.SEVERE, "Error while SAXparsing.");
+			}
+
+			String line;
+			int cnt = 0;
+			int disc = 1;
+			HashSet<String> set = new HashSet<>();
 			while ((line = br.readLine()) != null) {
 				line = line.trim();
 //				if (line.startsWith("<page>")) {
@@ -99,9 +101,8 @@ public class App {
 					}
 				}
 
-				if (line.startsWith("</page>")) {
-
-				}
+//				if (line.startsWith("</page>")) {
+//				}
 				cnt++;
 				if (cnt % 5000000 == 0) {
 					System.out.println("\t" + cnt);
@@ -109,8 +110,31 @@ public class App {
 //                System.out.println(line);
 //                if (cnt >100) break;
 			}
-		} catch (IOException e) {
+		} catch (FileNotFoundException e) {
+			logger.log(Level.SEVERE, "Could not access {0}", absoluteFilePath);
+		} catch (IOException | CompressorException e) {
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * <p>
+	 * Returns a buffered reader which is able to SAXparse on the given file if
+	 * given a {@code org.xml.sax.helpers.DefaultHandler}.
+	 * <p>
+	 * @param absoluteFilePath full path to readable file.
+	 * <p>
+	 * @return @throws FileNotFoundException if {@code absoluteFilePath} does not
+	 *         refer to a readable file.
+	 * @throws CompressorException          if the compressor name is not known.
+	 * @throws UnsupportedEncodingException if the encoding is not supported.
+	 */
+	public static SAXParserBufferedReader createSAXParserBufferedReader(String absoluteFilePath) throws FileNotFoundException, CompressorException, UnsupportedEncodingException {
+		FileInputStream fin = new FileInputStream(absoluteFilePath);
+		BufferedInputStream bis = new BufferedInputStream(fin);
+		CompressorInputStream cis = new CompressorStreamFactory().createCompressorInputStream(bis);
+		InputStreamReader isr = new InputStreamReader(cis, ENCODING);
+
+		return new SAXParserBufferedReader(isr, ENCODING);
 	}
 }

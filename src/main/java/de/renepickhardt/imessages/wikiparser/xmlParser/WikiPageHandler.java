@@ -30,7 +30,6 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class WikiPageHandler extends DefaultHandler {
 
-	private boolean beginItem = false;
 	private boolean timestamp;
 	private boolean userName;
 	private boolean action;
@@ -40,16 +39,15 @@ public class WikiPageHandler extends DefaultHandler {
 
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
-		if (qName.equals("logitem")) {
-			beginItem = true;
-			logItem = new LogItem();
-			timestamp = false;
-			userName = false;
-			action = false;
-			comment = false;
-			logTitle = false;
-		}
 		switch (qName) {
+			case ("logitem"):
+				logItem = new LogItem();
+				timestamp = false;
+				userName = false;
+				action = false;
+				comment = false;
+				logTitle = false;
+				break;
 			case ("timestamp"):
 				timestamp = true;
 				break;
@@ -65,13 +63,14 @@ public class WikiPageHandler extends DefaultHandler {
 			case ("comment"):
 				comment = true;
 				break;
+			default:
+				break;
 		}
 	}
 
 	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException {
 		if (qName.equals("logitem")) {
-			beginItem = false;
 			if (logItem.getAction().equals("block") && !logItem.isTitleAnIpAddress()) {
 				System.err.println(logItem);
 			}
