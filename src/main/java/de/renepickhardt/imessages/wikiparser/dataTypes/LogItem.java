@@ -1,4 +1,4 @@
-package de.renepickhardt.imessages.wikiparser;
+package de.renepickhardt.imessages.wikiparser.dataTypes;
 
 import org.apache.commons.validator.routines.InetAddressValidator;
 
@@ -55,7 +55,12 @@ public class LogItem {
 		this.action = action;
 	}
 
-	boolean isTitleAnIpAddress() {
+	/**
+	 * @see
+	 * org.apache.commons.validator.routines.InetAddressValidator#isValid(java.lang.String)
+	 * @return {@code true} iff the title is an IPv4 or IPv6 address.
+	 */
+	public boolean isTitleAnIpAddress() {
 		try {
 			/**
 			 * Truncates "Benutzer:" from the title

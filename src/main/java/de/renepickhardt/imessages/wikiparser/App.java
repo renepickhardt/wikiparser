@@ -1,5 +1,7 @@
 package de.renepickhardt.imessages.wikiparser;
 
+import de.renepickhardt.imessages.wikiparser.xmlParser.SAXParserBufferedReader;
+import de.renepickhardt.imessages.wikiparser.xmlParser.WikiPageHandler;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -7,16 +9,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashSet;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.compress.compressors.CompressorInputStream;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
-import org.xml.sax.Attributes;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.DefaultHandler;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 /**
  * <mediawiki xmlns="http://www.mediawiki.org/xml/export-0.10/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mediawiki.org/xml/export-0.10/ http://www.mediawiki.org/xml/export-0.10.xsd" version="0.10" xml:lang="de">
@@ -54,12 +51,20 @@ import org.xml.sax.helpers.XMLReaderFactory;
  */
 public class App {
 
-	public static void main(String[] args) throws CompressorException, IOException {
+	public static final String ENCODING = "UTF-8";
+
+	public static void main(String[] args) throws CompressorException, IOException, ParserConfigurationException {
 		String userHomeDir = System.getProperty("user.home");
-		BufferedReader br = getBufferedReaderForBZ2File(userHomeDir + File.separator + "Downloads" + File.separator + "dewiki-20150301-pages-logging.xml.gz");
+		String absoluteFilePath = userHomeDir + File.separator + "Downloads" + File.separator + "dewiki-20150301-pages-logging.xml.gz";
 		//dewiki-20150301-pages-articles1.xml.bz2
 		//dewiki-20150301-pages-logging.xml.gz
 		//dewiki-20150301-pages-meta-current3.xml.bz2
+
+		FileInputStream fin = new FileInputStream(absoluteFilePath);
+		BufferedInputStream bis = new BufferedInputStream(fin);
+		CompressorInputStream cis = new CompressorStreamFactory().createCompressorInputStream(bis);
+		InputStreamReader isr = new InputStreamReader(cis, ENCODING);
+		SAXParserBufferedReader br = new SAXParserBufferedReader(isr, new WikiPageHandler(), ENCODING);
 
 		String line;
 		int cnt = 0;
@@ -107,107 +112,5 @@ public class App {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-
-	public static BufferedReader getBufferedReaderForBZ2File(String fileIn) throws CompressorException, IOException {
-		FileInputStream fin = new FileInputStream(fileIn);
-		BufferedInputStream bis = new BufferedInputStream(fin);
-		CompressorInputStream input = new CompressorStreamFactory().createCompressorInputStream(bis);
-		BufferedReader br2 = new BufferedReader(new InputStreamReader(input, "UTF-8"));
-
-		try {
-			XMLReader myReader = XMLReaderFactory.createXMLReader();
-			InputSource is = new InputSource(input);
-
-			myReader.setContentHandler(new DefaultHandler() {
-				private boolean beginItem = false;
-				private boolean timestamp;
-				private boolean userName;
-				private boolean action;
-				private boolean comment;
-				private boolean logTitle;
-
-				private LogItem logItem;
-
-				@Override
-				public void startElement(
-								String uri,
-								String localName,
-								String qName,
-								Attributes atts) throws SAXException {
-					if (localName.equals("logitem")) {
-						beginItem = true;
-						logItem = new LogItem();
-
-						timestamp = false;
-						userName = false;
-						action = false;
-						comment = false;
-						logTitle = false;
-
-					}
-					if (beginItem) {
-						if (localName.equals("timestamp")) {
-							timestamp = true;
-						}
-						if (localName.equals("username")) {
-							userName = true;
-						}
-						if (localName.equals("action")) {
-							action = true;
-						}
-						if (localName.equals("logtitle")) {
-							logTitle = true;
-						}
-						if (localName.equals("comment")) {
-							comment = true;
-						}
-					}
-				}
-
-				@Override
-				public void endElement(String uri, String localName, String qName)
-								throws SAXException {
-					if (localName.equals("logitem")) {
-						beginItem = false;
-						if (logItem.getAction().equals("block") && !logItem.isTitleAnIpAddress()) {
-							System.err.println(logItem);
-						}
-					}
-				}
-
-				@Override
-				public void characters(char[] ch, int start, int length)
-								throws SAXException {
-					if (timestamp) {
-						logItem.setTimestamp(new String(ch, start, length));
-						timestamp = false;
-					}
-					if (userName) {
-						logItem.setUser(new String(ch, start, length));
-						userName = false;
-					}
-					if (action) {
-						logItem.setAction(new String(ch, start, length));
-						action = false;
-					}
-					if (comment) {
-						logItem.setComment(new String(ch, start, length));
-						comment = false;
-					}
-					if (logTitle) {
-						logItem.setTitle(new String(ch, start, length));
-						logTitle = false;
-					}
-				}
-			});
-
-			myReader.parse(is);
-
-		} catch (SAXException e) {
-			System.err.println(e.getMessage());
-		}
-
-		return br2;
 	}
 }

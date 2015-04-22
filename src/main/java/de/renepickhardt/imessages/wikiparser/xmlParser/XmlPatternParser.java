@@ -1,4 +1,4 @@
-package de.renepickhardt.imessages.wikiparser;
+package de.renepickhardt.imessages.wikiparser.xmlParser;
 
 import java.io.BufferedReader;
 
@@ -27,5 +27,4 @@ public class XmlPatternParser {
 	public void setXmlBufferedReader(BufferedReader xmlBufferedReader) {
 		this.xmlBufferedReader = xmlBufferedReader;
 	}
-
 }
