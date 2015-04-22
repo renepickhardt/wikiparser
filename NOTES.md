@@ -3,6 +3,7 @@ This file serves as a hub for general notes e.g. about the syntax of the Wiki du
 
 ## [dewiki-20150301-pages-logging.xml](https://dumps.wikimedia.org/dewiki/20150301/dewiki-20150301-pages-logging.xml.gz)
 * All positive odd namespaces are discussion pages:
+
 | Key | Namespace |
 |-----|-----------|
 | -2 | Medium |
