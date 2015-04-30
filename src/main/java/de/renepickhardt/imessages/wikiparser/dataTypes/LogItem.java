@@ -1,5 +1,6 @@
 package de.renepickhardt.imessages.wikiparser.dataTypes;
 
+import java.lang.reflect.Field;
 import org.apache.commons.validator.routines.InetAddressValidator;
 
 public class LogItem {
@@ -47,6 +48,38 @@ public class LogItem {
 		return "ts: " + timestamp + "\tuser: " + user + "\ttitle: " + title + "\tcomment:" + comment + "\taction:" + action;
 	}
 
+	/**
+	 * Iterates over all attributes of this class and returns this Object's values
+	 * in an array. The returned array might be shorter than the number of
+	 * attributes if some are unaccessible.
+	 * <p>
+	 * @return a array of {@code String}s containing all accessible attributes of
+	 *         this Object.
+	 */
+	public String[] toStringArray() {
+		Field[] attributes = getClass().getDeclaredFields();
+		String[] a = new String[attributes.length];
+		int actualArraySize = a.length;
+		for (int i = 0; i < a.length; i++) {
+			try {
+				Object currentValue = attributes[i].get(this);
+				try {
+					a[i] = currentValue.toString();
+				} catch (NullPointerException e) {
+					a[i] = "!MISSING ENTRY";
+				}
+			} catch (IllegalAccessException | IllegalArgumentException e) {
+				actualArraySize--;
+			}
+		}
+		if (a.length > actualArraySize) {
+			// truncate the array:
+			System.arraycopy(a, 0, a, 0, actualArraySize);
+			assert (a.length == actualArraySize);
+		}
+		return a;
+	}
+
 	public String getAction() {
 		return action;
 	}
@@ -65,9 +98,14 @@ public class LogItem {
 			/**
 			 * Truncates "Benutzer:" from the title
 			 */
-			String titleSubstring = title.substring(9);
+			String titleSubstringDE = title.substring(9);
+			/**
+			 * Truncates "User:" from the title
+			 */
+			String titleSubstringEN = title.substring(5);
 			InetAddressValidator ipAddressValidator = InetAddressValidator.getInstance();
-			if (ipAddressValidator.isValid(titleSubstring)) {
+			if (ipAddressValidator.isValid(titleSubstringDE)
+					|| ipAddressValidator.isValid(titleSubstringEN)) {
 				return true;
 			}
 		} catch (Exception e) {
