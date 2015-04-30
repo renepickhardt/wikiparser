@@ -50,16 +50,15 @@ public class LogItem {
 
 	/**
 	 * Iterates over all attributes of this class and returns this Object's values
-	 * in an array. The returned array might be shorter than the number of
-	 * attributes if some are unaccessible.
+	 * in an array. If values are missing, they are set to "!MISSING ENTRY".
+	 * Likewise, inaccessible values are marked as "!INACCESSIBLE ENTRY".
 	 * <p>
-	 * @return a array of {@code String}s containing all accessible attributes of
-	 *         this Object.
+	 * @return a array of {@code String}s containing all attributes of this
+	 *         Object.
 	 */
 	public String[] toStringArray() {
 		Field[] attributes = getClass().getDeclaredFields();
 		String[] a = new String[attributes.length];
-		int actualArraySize = a.length;
 		for (int i = 0; i < a.length; i++) {
 			try {
 				Object currentValue = attributes[i].get(this);
@@ -69,13 +68,8 @@ public class LogItem {
 					a[i] = "!MISSING ENTRY";
 				}
 			} catch (IllegalAccessException | IllegalArgumentException e) {
-				actualArraySize--;
+				a[i] = "!INACCESSIBLE ENTRY";
 			}
-		}
-		if (a.length > actualArraySize) {
-			// truncate the array:
-			System.arraycopy(a, 0, a, 0, actualArraySize);
-			assert (a.length == actualArraySize);
 		}
 		return a;
 	}
