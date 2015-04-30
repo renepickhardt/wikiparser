@@ -16,7 +16,12 @@
  */
 package de.renepickhardt.imessages.wikiparser.xmlParser;
 
+import com.opencsv.CSVWriter;
 import de.renepickhardt.imessages.wikiparser.dataTypes.LogItem;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -71,8 +76,12 @@ public class WikiPageHandler extends DefaultHandler {
 	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException {
 		if (qName.equals("logitem")) {
-			if (logItem.getAction().equals("block") && !logItem.isTitleAnIpAddress()) {
-				System.err.println(logItem);
+			try {
+				try (FileWriter fw = new FileWriter("logItems.csv", true); CSVWriter writer = new CSVWriter(fw, '\t')) {
+					writer.writeNext(logItem.toStringArray());
+				}
+			} catch (IOException ex) {
+				Logger.getLogger(WikiPageHandler.class.getName()).log(Level.SEVERE, null, ex);
 			}
 		}
 	}
