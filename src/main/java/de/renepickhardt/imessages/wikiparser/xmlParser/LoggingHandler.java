@@ -87,7 +87,9 @@ public class LoggingHandler extends DefaultHandler {
 
 	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException {
-		if (qName.equals("logitem")) {
+		if (qName.equals("contributor")) {
+			isContributor = false;
+		} else if (qName.equals("logitem")) {
 			try {
 				try (FileWriter fw = new FileWriter("logItems.csv", true); CSVWriter writer = new CSVWriter(fw, '\t')) {
 					writer.writeNext(logItem.toStringArray());
@@ -110,6 +112,7 @@ public class LoggingHandler extends DefaultHandler {
 				isUserName = false;
 			} else if (isUserId) {
 				logItem.setUserId(text);
+				isUserId = false;
 			}
 		} else if (isAction) {
 			logItem.setAction(text);

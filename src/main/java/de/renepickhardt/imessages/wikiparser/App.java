@@ -1,7 +1,7 @@
 package de.renepickhardt.imessages.wikiparser;
 
 import de.renepickhardt.imessages.wikiparser.xmlParser.SAXParserBufferedReader;
-import de.renepickhardt.imessages.wikiparser.xmlParser.WikiPageHandler;
+import de.renepickhardt.imessages.wikiparser.xmlParser.LoggingHandler;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,14 +25,11 @@ public class App {
 
 	public static void main(String[] args) {
 		String userHomeDir = System.getProperty("user.home");
-		String absoluteFilePath = userHomeDir + File.separator + "Downloads" + File.separator + "dewiki-20150301-pages-logging.xml.gz";
-		//dewiki-20150301-pages-articles1.xml.bz2
-		//dewiki-20150301-pages-logging.xml.gz
-		//dewiki-20150301-pages-meta-current3.xml.bz2
+		String absoluteFilePath = userHomeDir + File.separator + "Downloads" + File.separator + "enwiki-20150403-pages-logging.xml.gz";
 
 		try {
 			SAXParserBufferedReader br = createSAXParserBufferedReader(absoluteFilePath);
-			if (!br.parse(new WikiPageHandler())) {
+			if (!br.parse(new LoggingHandler())) {
 				logger.log(Level.SEVERE, "Error while SAXparsing.");
 			}
 

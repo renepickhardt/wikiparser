@@ -16,7 +16,7 @@ import java.io.BufferedReader;
  * @author rpickhardt
  * <p>
  */
-public class XmlPatternParser {
+public class XMLPatternParser {
 
 	private BufferedReader xmlBufferedReader;
 
