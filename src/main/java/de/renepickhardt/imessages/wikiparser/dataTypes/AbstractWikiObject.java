@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 mruster <mruster@uni-koblenz.de>
+ * Copyright (C) 2015 mruster
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ import java.util.Arrays;
 
 /**
  *
- * @author mruster <mruster@uni-koblenz.de>
+ * @author mruster
  */
 public abstract class AbstractWikiObject {
 
@@ -34,26 +34,19 @@ public abstract class AbstractWikiObject {
 	 * in an array. If values are missing, they are set to "!MISSING ENTRY".
 	 * Likewise, inaccessible values are marked as "!INACCESSIBLE ENTRY".
 	 * <p>
+	 * @see #getAllAttributes()
 	 * @return an array of {@code String}s containing all attributes of this
 	 *         Object excluding {@code recursiveAttributesAmount}.
 	 */
 	public String[] toStringArray() {
-		Field[] attributes = getClass().getDeclaredFields();
+		List<Field> attributes = this.getAllAttributes();
 		String[] a = new String[this.getRecursiveAttributesAmount()];
-		assert ("recursiveAttributesAmount".equals(attributes[0].getName()));
-		for (int i = 1; i < a.length;) {
+		int i = 0;
+		for (Field attribute : attributes) {
 			try {
-				Object currentValue = attributes[i].get(this);
+				Object currentValue = attribute.get(this);
 				try {
-					try {
-						AbstractWikiElement wikiObject = (AbstractWikiElement) currentValue;
-						String[] wikiObjectAttributes = wikiObject.toStringArray();
-						for (String wikiObjectAttribute : wikiObjectAttributes) {
-							a[i++] = wikiObjectAttribute;
-						}
-					} catch (ClassCastException e) {
-						a[i++] = currentValue.toString();
-					}
+					a[i++] = currentValue.toString();
 				} catch (NullPointerException e) {
 					a[i++] = "!MISSING ENTRY";
 				}

@@ -67,7 +67,7 @@ public class AbstractWikiObjectTest {
 		String[] result = instance.toStringArray();
 		assertArrayEquals(expResult, result);
 		// TODO review the generated test code and remove the default call to fail.
-		assertTrue(true);
+		fail("Not implemented yet.");
 	}
 
 	/**
