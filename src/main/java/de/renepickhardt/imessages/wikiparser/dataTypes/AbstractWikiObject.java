@@ -17,9 +17,11 @@
 package de.renepickhardt.imessages.wikiparser.dataTypes;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
+import java.util.TreeMap;
 
 /**
  *
@@ -27,6 +29,8 @@ import java.util.Arrays;
  */
 public abstract class AbstractWikiObject {
 
+	public final String MISSING_ENTRY_STRING = "!MISSING ENTRY";
+	public final String INACCESSIBLE_ENTRY_STRING = "!INACCESSIBLE ENTRY";
 	protected int recursiveAttributesAmount = -1;
 
 	/**
@@ -48,10 +52,10 @@ public abstract class AbstractWikiObject {
 				try {
 					a[i++] = currentValue.toString();
 				} catch (NullPointerException e) {
-					a[i++] = "!MISSING ENTRY";
+					a[i++] = this.MISSING_ENTRY_STRING;
 				}
 			} catch (IllegalAccessException | IllegalArgumentException e) {
-				a[i++] = "!INACCESSIBLE ENTRY";
+				a[i++] = this.INACCESSIBLE_ENTRY_STRING;
 			}
 		}
 		return a;
@@ -66,7 +70,7 @@ public abstract class AbstractWikiObject {
 	 */
 	public int getRecursiveAttributesAmount() {
 		if (this.recursiveAttributesAmount < 0) {
-			this.recursiveAttributesAmount = this.getAllAttributes().size();
+			this.getAllAttributes();
 		}
 		return this.recursiveAttributesAmount;
 	}
@@ -83,7 +87,8 @@ public abstract class AbstractWikiObject {
 	 * nesting hierarchy has three AWEs.
 	 * <p>
 	 * The {@code recursiveAttributesAmount} attribute is not counted neither is a
-	 * possible {@code $assertionsDisabled"} attribute.
+	 * possible {@code $assertionsDisabled"} attribute. Moreover, final fields are
+	 * ignored.
 	 * <p>
 	 * <b>Inherited attributes are ignored.</b>
 	 * <p>
@@ -105,7 +110,8 @@ public abstract class AbstractWikiObject {
 				childrenAttributes.addAll(wikiObject.getAWEAttributesRecursively(wikiObject.getClass()));
 			} catch (IllegalAccessException | ClassCastException | NullPointerException e) {
 				if (!"$assertionsDisabled".equals(attribute.getName())
-						&& !"recursiveAttributesAmount".equals(attribute.getName())) {
+						&& !"recursiveAttributesAmount".equals(attribute.getName())
+						&& !Modifier.isFinal(attribute.getModifiers())) {
 					childrenAttributes.add(attribute);
 				}
 			}
@@ -118,6 +124,11 @@ public abstract class AbstractWikiObject {
 	 * Retrieves all attributes including inherited ones. Also extracts
 	 * {@code AbstractWikiElement}s. For details,
 	 * <p>
+	 * Also updates {@code recursiveAttributesAmount}.
+	 * <p>
+	 * The returned list <b>must</b> be sorted as
+	 * {@code getRecursiveAttributesAmount()} is not.
+	 * <p>
 	 * @see #getAWEAttributesRecursively(java.lang.Class)
 	 * @return all attributes of this object with {@code AbstractWikiObject}
 	 *         attributes extracted.
@@ -127,6 +138,21 @@ public abstract class AbstractWikiObject {
 		for (Class<?> c = this.getClass(); c != null; c = c.getSuperclass()) {
 			attributes.addAll(this.getAWEAttributesRecursively(c));
 		}
-		return attributes;
+		this.recursiveAttributesAmount = attributes.size();
+		return this.sort(attributes);
+	}
+
+	/**
+	 *
+	 * @param l list with {@code Field}s that have the {@code name} attribute set.
+	 * <p>
+	 * @return {@code l} alphabetically sorted by its entries {@code name}.
+	 */
+	protected ArrayList<Field> sort(ArrayList<Field> l) {
+		TreeMap<String, Field> map = new TreeMap<>();
+		for (Field field : l) {
+			map.put(field.getName(), field);
+		}
+		return new ArrayList<>(map.values());
 	}
 }

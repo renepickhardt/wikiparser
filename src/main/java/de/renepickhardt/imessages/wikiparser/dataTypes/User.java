@@ -25,8 +25,8 @@ package de.renepickhardt.imessages.wikiparser.dataTypes;
  */
 public class User extends AbstractWikiObject {
 
-	private String name;
-	private String id;
+	protected String name;
+	protected String id;
 
 	public String getName() {
 		return name;

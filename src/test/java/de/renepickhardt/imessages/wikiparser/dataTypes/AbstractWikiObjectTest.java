@@ -59,11 +59,19 @@ public class AbstractWikiObjectTest {
 
 	/**
 	 * Test of toStringArray method, of class AbstractWikiObject.
+	 * <p>
+	 * <b>NB:</b> {@code expResult} must be sorted alphabetically by attribute
+	 * name.
 	 */
 	@Test
 	public void testToStringArray() {
 		System.out.println("toStringArray");
-		String[] expResult = null;
+		String[] expResult = {instance.getAction(),
+													instance.getComment(),
+													instance.getUser().getId(),
+													instance.getUser().getName(),
+													instance.getTimestamp(),
+													instance.getTitle()};
 		String[] result = instance.toStringArray();
 		assertArrayEquals(expResult, result);
 		// TODO review the generated test code and remove the default call to fail.

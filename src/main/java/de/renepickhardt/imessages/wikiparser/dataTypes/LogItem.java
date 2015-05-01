@@ -4,7 +4,7 @@ import org.apache.commons.validator.routines.InetAddressValidator;
 
 public class LogItem extends AbstractWikiElement {
 
-	private String action;
+	protected String action;
 
 	@Override
 	public String toString() {
