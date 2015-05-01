@@ -31,114 +31,90 @@ public abstract class AbstractWikiObject {
 
 	public final String MISSING_ENTRY_STRING = "!MISSING ENTRY";
 	public final String INACCESSIBLE_ENTRY_STRING = "!INACCESSIBLE ENTRY";
-	protected int recursiveAttributesAmount = -1;
+	protected int attributesAmount = -1;
+
+	public String[] toStringArray() {
+		ArrayList<String> l = this.toStringList();
+		String[] a = new String[l.size()];
+		return l.toArray(a);
+	}
 
 	/**
 	 * Iterates over all attributes of this class and returns this Object's values
 	 * in an array. If values are missing, they are set to "!MISSING ENTRY".
-	 * Likewise, inaccessible values are marked as "!INACCESSIBLE ENTRY".
+	 * Likewise, inaccessible values are marked as "!INACCESSIBLE ENTRY". {
+	 * <p>
+	 * {@code AbstractWikiObject}s are not returned as such. Instead, their values
+	 * are extracted and returned.
 	 * <p>
 	 * @see #getAllAttributes()
 	 * @return an array of {@code String}s containing all attributes of this
-	 *         Object excluding {@code recursiveAttributesAmount}.
+	 *         Object excluding {@code attributesAmount}.
 	 */
-	public String[] toStringArray() {
+	public ArrayList<String> toStringList() {
 		List<Field> attributes = this.getAllAttributes();
-		String[] a = new String[this.getRecursiveAttributesAmount()];
-		int i = 0;
+		ArrayList<String> l = new ArrayList<>();
 		for (Field attribute : attributes) {
 			try {
-				Object currentValue = attribute.get(this);
 				try {
-					a[i++] = currentValue.toString();
-				} catch (NullPointerException e) {
-					a[i++] = this.MISSING_ENTRY_STRING;
+					try {
+						AbstractWikiObject wikiObject = (AbstractWikiObject) attribute.get(this);
+						l.addAll(wikiObject.toStringList());
+					} catch (ClassCastException e) {
+						Object currentValue = attribute.get(this);
+						l.add(currentValue.toString());
+					}
+				} catch (NullPointerException e2) {
+					l.add(this.MISSING_ENTRY_STRING);
 				}
 			} catch (IllegalAccessException | IllegalArgumentException e) {
-				a[i++] = this.INACCESSIBLE_ENTRY_STRING;
+				l.add(this.INACCESSIBLE_ENTRY_STRING);
 			}
 		}
-		return a;
+		return l;
 	}
 
 	/**
 	 * <p>
-	 * Sets {@code recursiveAttributesAmount} by invoking
-	 * {@code getAllAttributes()} if attribute is not initialised yet.
+	 * Sets {@code attributesAmount} by invoking {@code getAllAttributes()} if
+	 * attribute is not initialised yet.
 	 * <p>
-	 * @return the value of {@code recursiveAttributesAmount}.
+	 * @return the value of {@code attributesAmount}.
 	 */
-	public int getRecursiveAttributesAmount() {
-		if (this.recursiveAttributesAmount < 0) {
+	public int getAttributesAmount() {
+		if (this.attributesAmount < 0) {
 			this.getAllAttributes();
 		}
-		return this.recursiveAttributesAmount;
+		return this.attributesAmount;
 	}
 
 	/**
 	 * <p>
-	 * Retrieve attributes of this class and the attributes of its attributes that
-	 * are {@code AbstractWikiElement} instances. Hence, if an attribute is of
-	 * type {@code AbstractWikiElement} itself, all its attributes will be added.
-	 * The {@code AbstractWikiElement} then is not added.
+	 * Retrieves all attributes including inherited ones.
 	 * <p>
-	 * Assume we have an {@code AbstractWikiElement} (short AWE) as follows:
-	 * AWE1/AWE2/AWE3/[attr1, attr2]. Then the count will be 2 although the
-	 * nesting hierarchy has three AWEs.
+	 * The returned list <b>will be</b> sorted although
+	 * {@code getAttributesAmount()} is not.
 	 * <p>
-	 * The {@code recursiveAttributesAmount} attribute is not counted neither is a
-	 * possible {@code $assertionsDisabled"} attribute. Moreover, final fields are
-	 * ignored.
+	 * @see #sort(java.util.ArrayList)
 	 * <p>
-	 * <b>Inherited attributes are ignored.</b>
+	 * Final fields are ignored just as {@code attributesAmount} and a potential
+	 * {@code $assertionsDisabled} attribute.
 	 * <p>
-	 * @param c a {@code Class} of which not-inherited attributes will be
-	 *          extracted.
-	 * <p>
-	 * @return the not-inherited attributes of this Object and all of his
-	 *         sub-{@code AbstractWikiElement}s' attributes without the respective
-	 *         {@code recursiveAttributesAmount} attribute itself.
-	 */
-	protected ArrayList<Field> getAWEAttributesRecursively(Class c) {
-		ArrayList<Field> childrenAttributes = new ArrayList<>();
-		Field[] attributesArray = c.getDeclaredFields();
-		List<Field> attributes = Arrays.asList(attributesArray);
-
-		for (Field attribute : attributes) { // add only AbstractWikiObject's attributes but not itself:
-			try {
-				AbstractWikiObject wikiObject = (AbstractWikiObject) attribute.get(this);
-				childrenAttributes.addAll(wikiObject.getAWEAttributesRecursively(wikiObject.getClass()));
-			} catch (IllegalAccessException | ClassCastException | NullPointerException e) {
-				if (!"$assertionsDisabled".equals(attribute.getName())
-						&& !"recursiveAttributesAmount".equals(attribute.getName())
-						&& !Modifier.isFinal(attribute.getModifiers())) {
-					childrenAttributes.add(attribute);
-				}
-			}
-		}
-		return childrenAttributes;
-	}
-
-	/**
-	 * <p>
-	 * Retrieves all attributes including inherited ones. Also extracts
-	 * {@code AbstractWikiElement}s. For details,
-	 * <p>
-	 * Also updates {@code recursiveAttributesAmount}.
-	 * <p>
-	 * The returned list <b>must</b> be sorted as
-	 * {@code getRecursiveAttributesAmount()} is not.
-	 * <p>
-	 * @see #getAWEAttributesRecursively(java.lang.Class)
-	 * @return all attributes of this object with {@code AbstractWikiObject}
-	 *         attributes extracted.
+	 * @return all attributes of this object.
 	 */
 	protected ArrayList<Field> getAllAttributes() {
 		ArrayList<Field> attributes = new ArrayList<>();
 		for (Class<?> c = this.getClass(); c != null; c = c.getSuperclass()) {
-			attributes.addAll(this.getAWEAttributesRecursively(c));
+			Field[] declaredFields = c.getDeclaredFields();
+			for (Field field : declaredFields) {
+				if (!"$assertionsDisabled".equals(field.getName())
+						&& !"attributesAmount".equals(field.getName())
+						&& !Modifier.isFinal(field.getModifiers())) {
+					attributes.add(field);
+				}
+			}
 		}
-		this.recursiveAttributesAmount = attributes.size();
+		this.attributesAmount = attributes.size();
 		return this.sort(attributes);
 	}
 

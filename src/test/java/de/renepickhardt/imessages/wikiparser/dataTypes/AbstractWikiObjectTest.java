@@ -74,20 +74,22 @@ public class AbstractWikiObjectTest {
 													instance.getTitle()};
 		String[] result = instance.toStringArray();
 		assertArrayEquals(expResult, result);
-		// TODO review the generated test code and remove the default call to fail.
-		fail("Not implemented yet.");
 	}
 
 	/**
 	 * Test of getAttributesAmountRecursively method, of class AbstractWikiObject.
 	 */
 	@Test
-	public void testGetAttributesAmountRecursively() {
+	public void testGetAttributesAmount() {
 		System.out.println("getAttributesAmountRecursively");
 
-		int expResult = 6;
-		int result = instance.getRecursiveAttributesAmount();
+		int expResult = 5;
+		int result = instance.getAttributesAmount();
 
+		assertEquals(expResult, result);
+
+		expResult = 2;
+		result = instance.getUser().getAttributesAmount();
 		assertEquals(expResult, result);
 	}
 }
