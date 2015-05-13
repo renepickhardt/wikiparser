@@ -29,13 +29,15 @@ import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * <p>
- * Default handler for SAXparsing XML files from Wikipedia page dumps.
+ * Default handler for SAXparsing Wikipedia XML logging dumps. The results are
+ * written to a CSV file and contain only blocks.
  * <p>
  * @author rpickhardt
  * @author mruster
  */
 public class LoggingBlockHandler extends DefaultHandler {
 
+	private final String FILE_NAME = "blockItems.csv";
 	private boolean isTimestamp;
 	/**
 	 * In block logs, the contributor is an administrator.
@@ -119,7 +121,7 @@ public class LoggingBlockHandler extends DefaultHandler {
 				try {
 					if ("block".equals(logItem.getAction().toLowerCase(Locale.ENGLISH))) {
 						if (!logItem.isTitleAnIpAddress()) {
-							try (FileWriter fw = new FileWriter("logItems.csv", true); CSVWriter writer = new CSVWriter(fw, '\t')) {
+							try (FileWriter fw = new FileWriter(FILE_NAME, true); CSVWriter writer = new CSVWriter(fw, '\t')) {
 								writer.writeNext(logItem.toStringArray());
 							}
 						}
