@@ -20,6 +20,7 @@ import com.opencsv.CSVWriter;
 import de.renepickhardt.imessages.wikiparser.dataTypes.LogItem;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.xml.sax.Attributes;
@@ -85,18 +86,41 @@ public class LoggingHandler extends DefaultHandler {
 		}
 	}
 
+	/**
+	 * <p>
+	 * This method writes logItems to disk when they are of action type block and
+	 * the blocked user is a registered user (not an IP address).
+	 * <p>
+	 * @param uri       The Namespace URI, or the empty string if the element has
+	 *                  no Namespace URI or if Namespace processing is not being
+	 *                  performed.
+	 * @param localName The local name (without prefix), or the empty string if
+	 *                  Namespace processing is not being performed.
+	 * @param qName     The qualified name (with prefix), or the empty string if
+	 *                  qualified names are not available.
+	 * <p>
+	 * @throws org.xml.sax.SAXException - Any SAX exception, possibly wrapping
+	 *                                  another exception.
+	 */
 	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException {
-		if (qName.equals("contributor")) {
-			isContributor = false;
-		} else if (qName.equals("logitem")) {
-			try {
-				try (FileWriter fw = new FileWriter("logItems.csv", true); CSVWriter writer = new CSVWriter(fw, '\t')) {
-					writer.writeNext(logItem.toStringArray());
+		switch (qName) {
+			case "contributor":
+				isContributor = false;
+				break;
+			case "logitem":
+				try {
+					if ("block".equals(logItem.getAction().toLowerCase(Locale.ENGLISH))) {
+						if (!logItem.isTitleAnIpAddress()) {
+							try (FileWriter fw = new FileWriter("logItems.csv", true); CSVWriter writer = new CSVWriter(fw, '\t')) {
+								writer.writeNext(logItem.toStringArray());
+							}
+						}
+					}
+				} catch (IOException ex) {
+					Logger.getLogger(LoggingHandler.class.getName()).log(Level.SEVERE, null, ex);
 				}
-			} catch (IOException ex) {
-				Logger.getLogger(LoggingHandler.class.getName()).log(Level.SEVERE, null, ex);
-			}
+				break;
 		}
 	}
 
