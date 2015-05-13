@@ -34,14 +34,21 @@ import org.xml.sax.helpers.DefaultHandler;
  * @author rpickhardt
  * @author mruster
  */
-public class LoggingHandler extends DefaultHandler {
+public class LoggingBlockHandler extends DefaultHandler {
 
 	private boolean isTimestamp;
+	/**
+	 * In block logs, the contributor is an administrator.
+	 */
 	private boolean isContributor;
 	private boolean isUserId;
 	private boolean isUserName;
 	private boolean isAction;
 	private boolean isComment;
+	/**
+	 * The logtitle identifies the blocked object. In the case of the block log,
+	 * this is our blocked user.
+	 */
 	private boolean isLogTitle;
 	private LogItem logItem;
 
@@ -118,7 +125,7 @@ public class LoggingHandler extends DefaultHandler {
 						}
 					}
 				} catch (IOException ex) {
-					Logger.getLogger(LoggingHandler.class.getName()).log(Level.SEVERE, null, ex);
+					Logger.getLogger(LoggingBlockHandler.class.getName()).log(Level.SEVERE, null, ex);
 				}
 				break;
 		}

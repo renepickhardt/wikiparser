@@ -1,7 +1,7 @@
 package de.renepickhardt.imessages.wikiparser;
 
 import de.renepickhardt.imessages.wikiparser.xmlParser.SAXParserBufferedReader;
-import de.renepickhardt.imessages.wikiparser.xmlParser.LoggingHandler;
+import de.renepickhardt.imessages.wikiparser.xmlParser.LoggingBlockHandler;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,7 +29,7 @@ public class App {
 
 		try {
 			SAXParserBufferedReader br = createSAXParserBufferedReader(absoluteFilePath);
-			if (!br.parse(new LoggingHandler())) {
+			if (!br.parse(new LoggingBlockHandler())) {
 				logger.log(Level.SEVERE, "Error while SAXparsing.");
 			}
 
