@@ -21,11 +21,11 @@ import org.apache.commons.compress.compressors.CompressorStreamFactory;
 public class App {
 
 	public static final String ENCODING = "UTF-8";
+	public static final String[] FILE_PATH = new String[]{System.getProperty("user.home"), "Downloads", "delete", "wiki", "enwiki-20150403-pages-logging.xml.gz"};
 	private final static Logger logger = Logger.getLogger(App.class.getCanonicalName());
 
 	public static void main(String[] args) {
-		String userHomeDir = System.getProperty("user.home");
-		String absoluteFilePath = userHomeDir + File.separator + "Downloads" + File.separator + "enwiki-20150403-pages-logging.xml.gz";
+		String absoluteFilePath = String.join(File.separator, FILE_PATH);
 
 		try {
 			SAXParserBufferedReader br = createSAXParserBufferedReader(absoluteFilePath);
