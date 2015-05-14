@@ -38,32 +38,29 @@ import org.xml.sax.helpers.DefaultHandler;
 public class LoggingBlockHandler extends DefaultHandler {
 
 	private final String FILE_NAME = "blockItems.csv";
-	private boolean isTimestamp;
+
+	private LogItem logItem;
+	private boolean isTimestamp = false;
 	/**
 	 * In block logs, the contributor is an administrator.
 	 */
-	private boolean isContributor;
-	private boolean isUserId;
-	private boolean isUserName;
-	private boolean isAction;
-	private boolean isComment;
+	private boolean isContributor = false;
+	private boolean isUserId = false;
+	private boolean isUserName = false;
+	private boolean isAction = false;
+	private boolean isComment = false;
 	/**
 	 * The logtitle identifies the blocked object. In the case of the block log,
 	 * this is our blocked user.
 	 */
-	private boolean isLogTitle;
-	private LogItem logItem;
+	private boolean isLogTitle = false;
+	private boolean isLogItemId = false;
 
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
 		switch (qName) {
 			case ("logitem"):
 				logItem = new LogItem();
-				isTimestamp = false;
-				isUserName = false;
-				isAction = false;
-				isComment = false;
-				isLogTitle = false;
 				break;
 			case ("timestamp"):
 				isTimestamp = true;
@@ -74,6 +71,8 @@ public class LoggingBlockHandler extends DefaultHandler {
 			case ("id"):
 				if (isContributor) {
 					isUserId = true;
+				} else {
+					isLogItemId = true;
 				}
 				break;
 			case ("username"):
@@ -100,16 +99,15 @@ public class LoggingBlockHandler extends DefaultHandler {
 	 * This method writes logItems to disk when they are of action type block and
 	 * the blocked user is a registered user (not an IP address).
 	 * <p>
-	 * @param uri       The Namespace URI, or the empty string if the element has
-	 *                  no Namespace URI or if Namespace processing is not being
-	 *                  performed.
+	 * @param uri The Namespace URI, or the empty string if the element has no
+	 * Namespace URI or if Namespace processing is not being performed.
 	 * @param localName The local name (without prefix), or the empty string if
-	 *                  Namespace processing is not being performed.
-	 * @param qName     The qualified name (with prefix), or the empty string if
-	 *                  qualified names are not available.
+	 * Namespace processing is not being performed.
+	 * @param qName The qualified name (with prefix), or the empty string if
+	 * qualified names are not available.
 	 * <p>
 	 * @throws org.xml.sax.SAXException - Any SAX exception, possibly wrapping
-	 *                                  another exception.
+	 * another exception.
 	 */
 	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException {
@@ -156,6 +154,9 @@ public class LoggingBlockHandler extends DefaultHandler {
 		} else if (isLogTitle) {
 			logItem.setTitle(text);
 			isLogTitle = false;
+		} else if (isLogItemId) {
+			logItem.setId(text);
+			isLogItemId = false;
 		}
 	}
 }

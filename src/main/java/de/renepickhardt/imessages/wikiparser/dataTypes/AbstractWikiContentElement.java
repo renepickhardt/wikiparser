@@ -23,7 +23,6 @@ package de.renepickhardt.imessages.wikiparser.dataTypes;
 public class AbstractWikiContentElement extends AbstractWikiElement {
 
 	protected User contributor;
-	protected String timestamp;
 	protected String comment;
 
 	/**
@@ -42,14 +41,6 @@ public class AbstractWikiContentElement extends AbstractWikiElement {
 
 	public void setComment(String comment) {
 		this.comment = comment;
-	}
-
-	public String getTimestamp() {
-		return timestamp;
-	}
-
-	public void setTimestamp(String timestamp) {
-		this.timestamp = timestamp;
 	}
 
 	public User getUser() {

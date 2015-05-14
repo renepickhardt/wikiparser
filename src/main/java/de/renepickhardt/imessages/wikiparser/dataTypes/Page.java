@@ -6,7 +6,6 @@ import org.apache.commons.validator.routines.InetAddressValidator;
 public class Page extends AbstractWikiElement {
 
 	private String action;
-	private String id;
 	private ArrayList<Revision> revisions;
 
 	/**
@@ -14,14 +13,6 @@ public class Page extends AbstractWikiElement {
 	 */
 	public Page() {
 		this.revisions = new ArrayList<>();
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
 	}
 
 	public String getAction() {
@@ -67,7 +58,7 @@ public class Page extends AbstractWikiElement {
 			String titleSubstringEN = title.substring(5);
 			InetAddressValidator ipAddressValidator = InetAddressValidator.getInstance();
 			if (ipAddressValidator.isValid(titleSubstringDE)
-					|| ipAddressValidator.isValid(titleSubstringEN)) {
+							|| ipAddressValidator.isValid(titleSubstringEN)) {
 				return true;
 			}
 		} catch (Exception e) {
