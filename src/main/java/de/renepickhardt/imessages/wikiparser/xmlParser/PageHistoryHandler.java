@@ -21,6 +21,8 @@ import de.renepickhardt.imessages.wikiparser.dataTypes.Page;
 import de.renepickhardt.imessages.wikiparser.dataTypes.Revision;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.xml.sax.Attributes;
@@ -133,7 +135,7 @@ public class PageHistoryHandler extends DefaultHandler {
 							fw = new FileWriter(REVISIONS_FILE_NAME, true);
 							writer = new CSVWriter(fw, '\t');
 							for (Revision currentRevision : page.getRevisions()) {
-								writer.writeNext(currentRevision.toStringArray());
+								writer.writeNext(createPrintableRevision(currentRevision));
 							}
 							writer.close();
 						} catch (IOException ex) {
@@ -184,5 +186,22 @@ public class PageHistoryHandler extends DefaultHandler {
 			revision.setParentId(text);
 			isRevisionParentId = false;
 		}
+	}
+
+	/**
+	 * <p>
+	 * Helper function to print a revision. Extracts the attribute {String[]} from
+	 * the revision and prepends the associated {@code Page} id to the returned
+	 * array.
+	 *
+	 * @param printRevision the revision to be prepared for printing.
+	 * @return {page id, revision attributes}.
+	 */
+	private String[] createPrintableRevision(Revision printRevision) {
+		ArrayList<String> tmpArrayList = new ArrayList<>();
+		tmpArrayList.add(page.getId());
+		String[] revisionStringArray = printRevision.toStringArray();
+		tmpArrayList.addAll(Arrays.asList(revisionStringArray));
+		return tmpArrayList.toArray(new String[tmpArrayList.size()]);
 	}
 }
