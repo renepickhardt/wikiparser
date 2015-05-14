@@ -15,3 +15,6 @@ buildNumber.properties
 
 # vim swap files
 *.swp
+
+# log outputs
+*.csv
