@@ -20,7 +20,7 @@ package de.renepickhardt.imessages.wikiparser.dataTypes;
  *
  * @author mruster
  */
-public class AbstractWikiContentElement extends AbstractWikiElement {
+public class AbstractWikiContentElement extends AbstractCSVPrintableElement {
 
 	protected User contributor;
 	protected String comment;
