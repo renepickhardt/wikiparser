@@ -2,6 +2,7 @@ package de.renepickhardt.imessages.wikiparser;
 
 import de.renepickhardt.imessages.wikiparser.xmlParser.SAXParserBufferedReader;
 import de.renepickhardt.imessages.wikiparser.xmlParser.LoggingBlockHandler;
+import de.renepickhardt.imessages.wikiparser.xmlParser.PageHistoryHandler;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,7 +22,7 @@ import org.apache.commons.compress.compressors.CompressorStreamFactory;
 public class App {
 
 	public static final String ENCODING = "UTF-8";
-	public static final String[] FILE_PATH = new String[]{System.getProperty("user.home"), "Downloads", "delete", "wiki", "enwiki-20150403-pages-logging.xml.gz"};
+	public static final String[] FILE_PATH = new String[]{System.getProperty("user.home"), "Downloads", "delete", "wiki", "enwiki-20150429-pages-meta-hist-incr.xml.bz2"};
 	private final static Logger logger = Logger.getLogger(App.class.getCanonicalName());
 
 	public static void main(String[] args) {
@@ -29,7 +30,7 @@ public class App {
 
 		try {
 			SAXParserBufferedReader br = createSAXParserBufferedReader(absoluteFilePath);
-			if (!br.parse(new LoggingBlockHandler())) {
+			if (!br.parse(new PageHistoryHandler())) {
 				logger.log(Level.SEVERE, "Error while SAXparsing.");
 			}
 
@@ -59,8 +60,8 @@ public class App {
 	 * @param absoluteFilePath full path to readable file.
 	 * <p>
 	 * @return @throws FileNotFoundException if {@code absoluteFilePath} does not
-	 *         refer to a readable file.
-	 * @throws CompressorException          if the compressor name is not known.
+	 * refer to a readable file.
+	 * @throws CompressorException if the compressor name is not known.
 	 * @throws UnsupportedEncodingException if the encoding is not supported.
 	 */
 	public static SAXParserBufferedReader createSAXParserBufferedReader(String absoluteFilePath) throws FileNotFoundException, CompressorException, UnsupportedEncodingException {
