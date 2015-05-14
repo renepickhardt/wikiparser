@@ -20,15 +20,46 @@ package de.renepickhardt.imessages.wikiparser.dataTypes;
  *
  * @author mruster
  */
-public abstract class AbstractWikiElement extends AbstractCSVPrintableElement {
+public class Revision extends AbstractWikiContentElement {
 
-	protected String title;
+	private String id;
+	private String parentId;
+	private String text;
+	/**
+	 * Minor changes are marked by this flag.
+	 */
+	private boolean isMinor = false;
 
-	public String getTitle() {
-		return title;
+	public String getId() {
+		return id;
 	}
 
-	public void setTitle(String title) {
-		this.title = title;
+	public void setId(String id) {
+		this.id = id;
 	}
+
+	public String getParentId() {
+		return parentId;
+	}
+
+	public void setParentId(String parentId) {
+		this.parentId = parentId;
+	}
+
+	public String getText() {
+		return text;
+	}
+
+	public void setText(String text) {
+		this.text = text;
+	}
+
+	public boolean isIsMinor() {
+		return isMinor;
+	}
+
+	public void setIsMinor(boolean isMinor) {
+		this.isMinor = isMinor;
+	}
+
 }

@@ -26,7 +26,7 @@ import java.util.TreeMap;
  *
  * @author mruster
  */
-public abstract class AbstractWikiObject {
+public abstract class AbstractCSVPrintableElement {
 
 	public final String MISSING_ENTRY_STRING = "!MISSING ENTRY";
 	public final String INACCESSIBLE_ENTRY_STRING = "!INACCESSIBLE ENTRY";
@@ -43,7 +43,7 @@ public abstract class AbstractWikiObject {
 	 * in an array. If values are missing, they are set to "!MISSING ENTRY".
 	 * Likewise, inaccessible values are marked as "!INACCESSIBLE ENTRY". {
 	 * <p>
-	 * {@code AbstractWikiObject}s are not returned as such. Instead, their values
+	 * {@code AbstractCSVPrintableElement}s are not returned as such. Instead, their values
 	 * are extracted and returned.
 	 * <p>
 	 * @see #getAllAttributes()
@@ -57,7 +57,7 @@ public abstract class AbstractWikiObject {
 			try {
 				try {
 					try {
-						AbstractWikiObject wikiObject = (AbstractWikiObject) attribute.get(this);
+						AbstractCSVPrintableElement wikiObject = (AbstractCSVPrintableElement) attribute.get(this);
 						l.addAll(wikiObject.toStringList());
 					} catch (ClassCastException e) {
 						Object currentValue = attribute.get(this);

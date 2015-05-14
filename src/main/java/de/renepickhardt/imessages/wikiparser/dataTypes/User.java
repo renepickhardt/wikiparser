@@ -23,7 +23,7 @@ package de.renepickhardt.imessages.wikiparser.dataTypes;
  * <p>
  * @author mruster
  */
-public class User extends AbstractWikiObject {
+public class User extends AbstractCSVPrintableElement {
 
 	protected String name;
 	protected String id;

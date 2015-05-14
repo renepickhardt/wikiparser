@@ -2,7 +2,7 @@ package de.renepickhardt.imessages.wikiparser.dataTypes;
 
 import org.apache.commons.validator.routines.InetAddressValidator;
 
-public class LogItem extends AbstractWikiElement {
+public class LogItem extends AbstractWikiContentElement {
 
 	protected String action;
 
