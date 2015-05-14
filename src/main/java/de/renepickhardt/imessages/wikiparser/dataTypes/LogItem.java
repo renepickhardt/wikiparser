@@ -5,6 +5,8 @@ import org.apache.commons.validator.routines.InetAddressValidator;
 public class LogItem extends AbstractWikiContentElement {
 
 	protected String action;
+	protected String timestamp;
+	protected String title;
 
 	@Override
 	public String toString() {
@@ -17,6 +19,22 @@ public class LogItem extends AbstractWikiContentElement {
 
 	public void setAction(String action) {
 		this.action = action;
+	}
+
+	public String getTimestamp() {
+		return timestamp;
+	}
+
+	public void setTimestamp(String timestamp) {
+		this.timestamp = timestamp;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
 	}
 
 	/**
@@ -36,7 +54,7 @@ public class LogItem extends AbstractWikiContentElement {
 			String titleSubstringEN = title.substring(5);
 			InetAddressValidator ipAddressValidator = InetAddressValidator.getInstance();
 			if (ipAddressValidator.isValid(titleSubstringDE)
-					|| ipAddressValidator.isValid(titleSubstringEN)) {
+							|| ipAddressValidator.isValid(titleSubstringEN)) {
 				return true;
 			}
 		} catch (Exception e) {

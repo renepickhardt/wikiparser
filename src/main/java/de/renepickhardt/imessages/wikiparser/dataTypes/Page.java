@@ -1,12 +1,14 @@
 package de.renepickhardt.imessages.wikiparser.dataTypes;
 
 import java.util.ArrayList;
-import org.apache.commons.validator.routines.InetAddressValidator;
 
 public class Page extends AbstractWikiElement {
 
-	private String action;
-	private ArrayList<Revision> revisions;
+	protected ArrayList<Revision> revisions;
+	/**
+	 * The namespace 4 is reserved for Wikipedia itself.
+	 */
+	protected int namespace;
 
 	/**
 	 * Initialises the {@code revisions} list so that elements can be added to it.
@@ -15,19 +17,11 @@ public class Page extends AbstractWikiElement {
 		this.revisions = new ArrayList<>();
 	}
 
-	public String getAction() {
-		return action;
-	}
-
-	public void setAction(String action) {
-		this.action = action;
-	}
-
-	public ArrayList<Revision> getRevision() {
+	public ArrayList<Revision> getRevisions() {
 		return revisions;
 	}
 
-	public void setRevision(ArrayList<Revision> revisions) {
+	public void setRevisions(ArrayList<Revision> revisions) {
 		this.revisions = revisions;
 	}
 
@@ -41,29 +35,11 @@ public class Page extends AbstractWikiElement {
 		return this.revisions.add(revision);
 	}
 
-	/**
-	 * @see
-	 * org.apache.commons.validator.routines.InetAddressValidator#isValid(java.lang.String)
-	 * @return {@code true} iff the title is an IPv4 or IPv6 address.
-	 */
-	public boolean isTitleAnIpAddress() {
-		try {
-			/**
-			 * Truncates "Benutzer:" from the title
-			 */
-			String titleSubstringDE = title.substring(9);
-			/**
-			 * Truncates "User:" from the title
-			 */
-			String titleSubstringEN = title.substring(5);
-			InetAddressValidator ipAddressValidator = InetAddressValidator.getInstance();
-			if (ipAddressValidator.isValid(titleSubstringDE)
-							|| ipAddressValidator.isValid(titleSubstringEN)) {
-				return true;
-			}
-		} catch (Exception e) {
-			return false;
-		}
-		return false;
+	public int getNamespace() {
+		return namespace;
+	}
+
+	public void setNamespace(int namespace) {
+		this.namespace = namespace;
 	}
 }

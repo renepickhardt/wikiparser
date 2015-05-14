@@ -22,21 +22,12 @@ package de.renepickhardt.imessages.wikiparser.dataTypes;
  */
 public class Revision extends AbstractWikiContentElement {
 
-	private String id;
-	private String parentId;
-	private String text;
+	protected String parentId;
+	protected String text;
 	/**
 	 * Minor changes are marked by this flag.
 	 */
 	private boolean isMinor = false;
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
 
 	public String getParentId() {
 		return parentId;

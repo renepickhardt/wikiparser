@@ -24,6 +24,7 @@ public class AbstractWikiContentElement extends AbstractCSVPrintableElement {
 
 	protected User contributor;
 	protected String comment;
+	protected String id;
 
 	/**
 	 * <p>
@@ -57,5 +58,13 @@ public class AbstractWikiContentElement extends AbstractCSVPrintableElement {
 
 	public void setUserId(String id) {
 		this.contributor.setId(id);
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 }

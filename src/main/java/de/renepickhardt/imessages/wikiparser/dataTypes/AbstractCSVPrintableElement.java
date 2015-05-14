@@ -43,12 +43,12 @@ public abstract class AbstractCSVPrintableElement {
 	 * in an array. If values are missing, they are set to "!MISSING ENTRY".
 	 * Likewise, inaccessible values are marked as "!INACCESSIBLE ENTRY". {
 	 * <p>
-	 * {@code AbstractCSVPrintableElement}s are not returned as such. Instead, their values
-	 * are extracted and returned.
+	 * {@code AbstractCSVPrintableElement}s are not returned as such. Instead,
+	 * their values are extracted and returned.
 	 * <p>
 	 * @see #getAllAttributes()
 	 * @return an array of {@code String}s containing all attributes of this
-	 *         Object excluding {@code attributesAmount}.
+	 * Object excluding {@code attributesAmount}.
 	 */
 	public ArrayList<String> toStringList() {
 		List<Field> attributes = this.getAllAttributes();
@@ -107,8 +107,8 @@ public abstract class AbstractCSVPrintableElement {
 			Field[] declaredFields = c.getDeclaredFields();
 			for (Field field : declaredFields) {
 				if (!"$assertionsDisabled".equals(field.getName())
-						&& !"attributesAmount".equals(field.getName())
-						&& !Modifier.isFinal(field.getModifiers())) {
+								&& !"attributesAmount".equals(field.getName())
+								&& !Modifier.isFinal(field.getModifiers())) {
 					attributes.add(field);
 				}
 			}
