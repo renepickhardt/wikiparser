@@ -36,14 +36,15 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class PageHistoryHandler extends DefaultHandler {
 
-	private final String FILE_NAME = "pages.csv";
+	private final String PAGES_FILE_NAME = "pages.csv";
+	private final String REVISIONS_FILE_NAME = "revisions.csv";
 
 	private Page page;
 	private boolean isPage = false;
 	private boolean isPageId = false;
 	private boolean isTimestamp = false;
 	private boolean isTitle = false;
-	private boolean isNameSpace = false;
+	private boolean isNamespace = false;
 
 	private Revision revision;
 	private boolean isRevision = false;
@@ -101,7 +102,7 @@ public class PageHistoryHandler extends DefaultHandler {
 				isComment = true;
 				break;
 			case ("ns"):
-				isNameSpace = true;
+				isNamespace = true;
 				break;
 			default:
 				break;
@@ -120,12 +121,25 @@ public class PageHistoryHandler extends DefaultHandler {
 				break;
 			case "page":
 				isPage = false;
-				try {
-					try (FileWriter fw = new FileWriter(FILE_NAME, true); CSVWriter writer = new CSVWriter(fw, '\t')) {
-						writer.writeNext(page.toStringArray());
+				if (page.getNamespace() == 4) { // Wikipedia Namespace
+					if (page.getTitle().startsWith("Wikipedia:Articles for deletion")) { // deletion discussions
+						System.out.println("Processing a page with " + page.getRevisions().size() + " revisions.");
+						try {
+							FileWriter fw = new FileWriter(PAGES_FILE_NAME, true);
+							CSVWriter writer = new CSVWriter(fw, '\t');
+							writer.writeNext(page.toStringArray());
+							writer.close();
+
+							fw = new FileWriter(REVISIONS_FILE_NAME, true);
+							writer = new CSVWriter(fw, '\t');
+							for (Revision currentRevision : page.getRevisions()) {
+								writer.writeNext(currentRevision.toStringArray());
+							}
+							writer.close();
+						} catch (IOException ex) {
+							Logger.getLogger(PageHistoryHandler.class.getName()).log(Level.SEVERE, null, ex);
+						}
 					}
-				} catch (IOException ex) {
-					Logger.getLogger(PageHistoryHandler.class.getName()).log(Level.SEVERE, null, ex);
 				}
 				break;
 			default:
@@ -145,6 +159,9 @@ public class PageHistoryHandler extends DefaultHandler {
 		} else if (isPageId) {
 			page.setId(text);
 			isPageId = false;
+		} else if (isNamespace) {
+			page.setNamespace(Integer.parseInt(text));
+			isNamespace = false;
 			// below there be revisions
 		} else if (isContributor) {
 			if (isUserName) {
@@ -166,9 +183,6 @@ public class PageHistoryHandler extends DefaultHandler {
 		} else if (isRevisionParentId) {
 			revision.setParentId(text);
 			isRevisionParentId = false;
-		} else if (isNameSpace) {
-			page.setNamespace(Integer.parseInt(text));
-			isNameSpace = false;
 		}
 	}
 }

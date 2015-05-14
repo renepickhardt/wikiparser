@@ -27,7 +27,7 @@ public class Revision extends AbstractWikiContentElement {
 	/**
 	 * Minor changes are marked by this flag.
 	 */
-	private boolean isMinor = false;
+	protected boolean isMinor = false;
 
 	public String getParentId() {
 		return parentId;
