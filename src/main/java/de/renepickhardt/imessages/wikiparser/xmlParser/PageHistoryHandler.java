@@ -57,6 +57,7 @@ public class PageHistoryHandler extends DefaultHandler {
 	private boolean isUserId = false;
 	private boolean isUserName = false;
 	private boolean isText = false;
+	private StringBuilder revisionText;
 
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
@@ -94,6 +95,7 @@ public class PageHistoryHandler extends DefaultHandler {
 				break;
 			case ("text"):
 				if (isRevision) {
+					revisionText = new StringBuilder();
 					isText = true;
 				}
 				break;
@@ -116,6 +118,10 @@ public class PageHistoryHandler extends DefaultHandler {
 		switch (qName) {
 			case "contributor":
 				isContributor = false;
+				break;
+			case "text":
+				revision.setText(revisionText.toString());
+				isText = false;
 				break;
 			case "revision":
 				page.addRevision(revision);
@@ -174,8 +180,7 @@ public class PageHistoryHandler extends DefaultHandler {
 				isUserId = false;
 			}
 		} else if (isText) {
-			revision.setText(text);
-			isText = false;
+			revisionText.append(text);
 		} else if (isComment) {
 			revision.setComment(text);
 			isComment = false;
