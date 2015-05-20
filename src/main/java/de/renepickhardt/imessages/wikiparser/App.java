@@ -10,8 +10,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,18 +43,6 @@ public class App {
 			SAXParserBufferedReader br = createSAXParserBufferedReader(absoluteFilePath);
 			if (!br.parse(parserHandler)) {
 				logger.log(Level.SEVERE, "Error while SAXparsing.");
-			}
-
-			String line;
-			Set<String> actionSet = new HashSet<>();
-			while ((line = br.readLine()) != null) {
-				line = line.trim();
-				if (line.startsWith("<action")) { // print all actions once
-					if (!actionSet.contains(line)) {
-						actionSet.add(line);
-						System.out.println(line);
-					}
-				}
 			}
 		} catch (FileNotFoundException e) {
 			logger.log(Level.SEVERE, "Could not access {0}", absoluteFilePath);
