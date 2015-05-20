@@ -155,6 +155,19 @@ public class PageHistoryHandler extends DefaultHandler {
 		}
 	}
 
+	/**
+	 * <p>
+	 * Unsets flags where needed and writes character data in object's attribute
+	 * that resembles the current element. {@code revisionText} is furthermore
+	 * processed so that we remove all newlines and tabs. We don't expect them to
+	 * be semantically important.
+	 *
+	 * @param ch the characters from the XML document.
+	 * @param start the start position in the array.
+	 * @param length the number of characters to read from the array.
+	 * @throws SAXException any SAX exception, possibly wrapping another
+	 * exception.
+	 */
 	@Override
 	public void characters(char[] ch, int start, int length) throws SAXException {
 		String text = new String(ch, start, length);
@@ -180,6 +193,8 @@ public class PageHistoryHandler extends DefaultHandler {
 				isUserId = false;
 			}
 		} else if (isText) {
+			text = text.replace('\n', ' ');
+			text = text.replace('\t', ' ');
 			revisionText.append(text);
 		} else if (isComment) {
 			revision.setComment(text);
