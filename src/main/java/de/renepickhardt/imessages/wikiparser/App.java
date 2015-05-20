@@ -18,19 +18,32 @@ import java.util.logging.Logger;
 import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.compress.compressors.CompressorInputStream;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
+import org.xml.sax.helpers.DefaultHandler;
 
 public class App {
 
 	public static final String ENCODING = "UTF-8";
-	public static final String[] FILE_PATH = new String[]{System.getProperty("user.home"), "Downloads", "delete", "wiki", "enwiki-20150429-pages-meta-hist-incr.xml.bz2"};
+	public static final String[] FILE_PATH_LOG = new String[]{System.getProperty("user.home"), "Downloads", "delete", "wiki", "enwiki-20150403-pages-logging.xml.gz"};
+	public static final String[] FILE_PATH_HISTORY = new String[]{System.getProperty("user.home"), "Downloads", "delete", "wiki", "enwiki-20150429-pages-meta-hist-incr.xml.bz2"};
 	private final static Logger logger = Logger.getLogger(App.class.getCanonicalName());
 
 	public static void main(String[] args) {
-		String absoluteFilePath = String.join(File.separator, FILE_PATH);
+		if (args.length < 1) {
+			throw new IllegalArgumentException("This method expects a parameter indicating whether you want to process a log file (\"log\") or page histories (\"history').");
+		}
+		String absoluteFilePath;
+		DefaultHandler parserHandler;
+		if (args[0].equals("log")) {
+			absoluteFilePath = String.join(File.separator, FILE_PATH_LOG);
+			parserHandler = new LoggingBlockHandler();
+		} else {
+			absoluteFilePath = String.join(File.separator, FILE_PATH_HISTORY);
+			parserHandler = new PageHistoryHandler();
+		}
 
 		try {
 			SAXParserBufferedReader br = createSAXParserBufferedReader(absoluteFilePath);
-			if (!br.parse(new PageHistoryHandler())) {
+			if (!br.parse(parserHandler)) {
 				logger.log(Level.SEVERE, "Error while SAXparsing.");
 			}
 
