@@ -57,7 +57,7 @@ public class PageHistoryHandler extends DefaultHandler {
 	private boolean isUserId = false;
 	private boolean isUserName = false;
 	private boolean isText = false;
-	private StringBuilder revisionText;
+	private StringBuilder tmpCharacters;
 
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
@@ -94,15 +94,14 @@ public class PageHistoryHandler extends DefaultHandler {
 				}
 				break;
 			case ("text"):
-				if (isRevision) {
-					revisionText = new StringBuilder();
-					isText = true;
-				}
+				tmpCharacters = new StringBuilder();
+				isText = true;
 				break;
 			case ("title"):
 				isTitle = true;
 				break;
 			case ("comment"):
+				tmpCharacters = new StringBuilder();
 				isComment = true;
 				break;
 			case ("ns"):
@@ -120,8 +119,12 @@ public class PageHistoryHandler extends DefaultHandler {
 				isContributor = false;
 				break;
 			case "text":
-				revision.setText(revisionText.toString());
+				revision.setText(tmpCharacters.toString());
 				isText = false;
+				break;
+			case "comment":
+				revision.setComment(tmpCharacters.toString());
+				isComment = false;
 				break;
 			case "revision":
 				page.addRevision(revision);
@@ -158,7 +161,7 @@ public class PageHistoryHandler extends DefaultHandler {
 	/**
 	 * <p>
 	 * Unsets flags where needed and writes character data in object's attribute
-	 * that resembles the current element. {@code revisionText} is furthermore
+	 * that resembles the current element. {@code tmpCharacters} is furthermore
 	 * processed so that we remove all newlines and tabs. We don't expect them to
 	 * be semantically important.
 	 *
@@ -195,10 +198,11 @@ public class PageHistoryHandler extends DefaultHandler {
 		} else if (isText) {
 			text = text.replace('\n', ' ');
 			text = text.replace('\t', ' ');
-			revisionText.append(text);
+			assert (!isComment);
+			tmpCharacters.append(text);
 		} else if (isComment) {
-			revision.setComment(text);
-			isComment = false;
+			assert (!isText);
+			tmpCharacters.append(text);
 		} else if (isRevisionId) {
 			revision.setId(text);
 			isRevisionId = false;
