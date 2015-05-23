@@ -1,6 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import re
+import sys
+from dropNested import *
+from makeInternalLink import replaceInternalLinks
+from MagicWords import magicWordsRE
+from unescape import unescape
+from ignoredTags import getIgnoredTags
 
 selfClosingTags = [ 'br', 'hr', 'nobr', 'ref', 'references', 'nowiki' ]
 
@@ -19,11 +25,13 @@ placeholder_tag_patterns = [
 
 syntaxhighlight = re.compile('&lt;syntaxhighlight .*?&gt;(.*?)&lt;/syntaxhighlight&gt;', re.DOTALL)
 
-expand_templates = True
+# Matches space
+spaces = re.compile(r' {2,}')
 
-##
+# Matches dots
+dots = re.compile(r'\.{4,}')
+
 # Drop these elements from article text
-#
 discardElements = [
         'gallery', 'timeline', 'noinclude', 'pre',
         'table', 'tr', 'td', 'th', 'caption', 'div',
@@ -32,26 +40,16 @@ discardElements = [
         'ref', 'references', 'img', 'imagemap', 'source', 'small'
         ]
 
-# These tags are dropped, keeping their content.
-# handle 'a' separately, depending on keepLinks
-ignoredTags = [
-    'abbr', 'b', 'big', 'blockquote', 'center', 'cite', 'div', 'em',
-    'font', 'h1', 'h2', 'h3', 'h4', 'hiero', 'i', 'kbd', 'nowiki',
-    'p', 'plaintext', 's', 'span', 'strike', 'strong',
-    'sub', 'sup', 'tt', 'u', 'var'
-]
+# Matches bold/italic
+bold_italic = re.compile(r"'''''(.*?)'''''")
+bold = re.compile(r"'''(.*?)'''")
+italic_quote = re.compile(r"''\"([^\"]*?)\"''")
+italic = re.compile(r"''(.*?)''")
+quote_quote = re.compile(r'""([^"]*?)""')
 
-# Match ignored tags
-ignored_tag_patterns = []
-def ignoreTag(tag):
-    left = re.compile(r'<%s\b[^>/]*>' % tag, re.IGNORECASE) # both <ref> and <reference>
-    right = re.compile(r'</\s*%s>' % tag, re.IGNORECASE)
-    ignored_tag_patterns.append((left, right))
-
-for tag in ignoredTags:
-    ignoreTag(tag)
-
-
+# Match HTML comments
+# The buggy template {{Template:T}} has a comment terminating with just "->"
+comment = re.compile(r'<!--.*?-->', re.DOTALL)
 
 def clean(text):
     """
@@ -105,6 +103,7 @@ def clean(text):
             spans.append((m.start(), m.end()))
 
     # Drop ignored tags
+    ignored_tag_patterns = getIgnoredTags()
     for left, right in ignored_tag_patterns:
         for m in left.finditer(text):
             spans.append((m.start(), m.end()))
@@ -143,10 +142,5 @@ def clean(text):
 
     print(text)
 
-import sys
-from dropNested import *
-from makeInternalLink import *
-from MagicWords import *
-from unescape import *
-from variables import *
-clean(sys.argv[1])
+if __name__ == "__main__":
+    clean(sys.argv[1])

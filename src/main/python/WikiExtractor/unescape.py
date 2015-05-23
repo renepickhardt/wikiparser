@@ -23,7 +23,3 @@ def unescape(text):
             return text # leave as is
 
     return re.sub("&#?(\w+);", fixup, text)
-
-# Match HTML comments
-# The buggy template {{Template:T}} has a comment terminating with just "->"
-comment = re.compile(r'<!--.*?-->', re.DOTALL)

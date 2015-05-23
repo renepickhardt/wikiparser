@@ -1,5 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+from findBalanced import findBalanced
+import re
 
 # WikiLinks
 # See https://www.mediawiki.org/wiki/Help:Links#Internal_links
@@ -14,8 +16,6 @@ def replaceInternalLinks(text):
 
     with title concatenated with trail, when present, e.g. 's' for plural.
     """
-    from findBalanced import findBalanced
-    import re
     # call this after removal of external links, so we need not worry about
     # triple closing ]]].
     cur = 0
