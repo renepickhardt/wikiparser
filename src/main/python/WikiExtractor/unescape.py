@@ -1,3 +1,5 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 import re
 ##
 # Removes HTML or XML character references and entities from a text string.

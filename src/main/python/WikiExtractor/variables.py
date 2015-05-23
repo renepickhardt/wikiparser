@@ -1,3 +1,5 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 import re
 # Match external links (space separates second optional parameter)
 externalLink = re.compile(r'\[\w+[^ ]*? (.*?)]')

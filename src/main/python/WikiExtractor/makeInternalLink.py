@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 # WikiLinks
 # See https://www.mediawiki.org/wiki/Help:Links#Internal_links
 
