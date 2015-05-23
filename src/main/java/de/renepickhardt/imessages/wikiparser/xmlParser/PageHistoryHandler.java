@@ -144,6 +144,12 @@ public class PageHistoryHandler extends DefaultHandler {
 							fw = new FileWriter(REVISIONS_FILE_NAME, true);
 							writer = new CSVWriter(fw, '\t');
 							for (Revision currentRevision : page.getRevisions()) {
+								// clean the texts first:
+								String comment = currentRevision.getComment();
+								currentRevision.setComment(WikiCodeCleaner.clean(comment));
+								String text = currentRevision.getText();
+								currentRevision.setComment(WikiCodeCleaner.clean(text));
+
 								writer.writeNext(createPrintableRevision(currentRevision));
 							}
 							writer.close();

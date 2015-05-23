@@ -16,9 +16,11 @@
  */
 package de.renepickhardt.imessages.wikiparser.xmlParser;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -26,32 +28,33 @@ import java.util.ArrayList;
  */
 public class WikiCodeCleaner {
 
-	private String in;
-	private String out;
-
-	public String clean(String in) {
-		String[] wordArray = in.split(" ");
-		ArrayList<String> wordList = new ArrayList<>();
-		for (String word : wordArray) {
-			if (!word.isEmpty() && !isValidURI(word)) {
-
-			}
-
-		}
-		return null;
-	}
+	private final static Logger logger = Logger.getLogger(WikiCodeCleaner.class.getCanonicalName());
 
 	/**
+	 * <p>
+	 * Calls an external Python 3 script to process the input String and clean it
+	 * from any WikiCode syntax and other symbols that we do not care about.
 	 *
-	 * @param s a String which could be a URI.
-	 * @return {@code true} if the String can be transformed into an URI.
+	 * @param in any String that should be cleansed of markup and symbols unused
+	 * by our later processing.
+	 * @return input text without markup and other symbols that are of no use for
+	 * us.
 	 */
-	private boolean isValidURI(String s) {
+	public static String clean(String in) {
+		StringBuilder out = new StringBuilder();
 		try {
-			URI uri = new URI(s);
-			return true;
-		} catch (URISyntaxException ex) {
-			return false;
+			Process p = Runtime.getRuntime().exec("python src/main/python/WikiCodeCleaner/clean.py \"" + in + "\"");
+
+			BufferedReader processedIn = new BufferedReader(new InputStreamReader(p.getInputStream()));
+
+			String line;
+			while ((line = processedIn.readLine()) != null) {
+				out.append(line);
+			}
+		} catch (IOException e) {
+			logger.log(Level.SEVERE, "The Python script to clean the WikiCode syntax raised an unrecoverable error. It must be fixed and this parsing must be re-run for proper results. To allow the inspection of all errors that might occur with the current dataset, the process is continued and the input string of this method is being returned as-is. The detailed error was:{0}", e.getLocalizedMessage());
 		}
+
+		return out.toString();
 	}
 }
