@@ -7,6 +7,7 @@ from makeInternalLink import replaceInternalLinks
 from MagicWords import magicWordsRE
 from unescape import unescape
 from ignoredTags import getIgnoredTags
+from compact import compact
 
 selfClosingTags = [ 'br', 'hr', 'nobr', 'ref', 'references', 'nowiki' ]
 
@@ -139,6 +140,9 @@ def clean(text):
     text = re.sub(u'(\[\(«) ', r'\1', text)
     text = re.sub(r'\n\W+?\n', '\n', text, flags=re.U) # lines with only punctuations
     text = text.replace(',,', ',').replace(',.', '.')
+
+    # Remove lists, tables and such
+    text = compact(text)
 
     print(text)
 
