@@ -17,6 +17,7 @@
 package de.renepickhardt.imessages.wikiparser.xmlParser;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.logging.Level;
@@ -44,7 +45,10 @@ public class WikiCodeCleaner {
 		StringBuilder out = new StringBuilder();
 		BufferedReader processedIn = null;
 		try {
-			Process p = Runtime.getRuntime().exec("python src/main/python/WikiCodeCleaner/clean.py \"" + in + "\"");
+			ProcessBuilder pb = new ProcessBuilder("python", "clean.py", in);
+			File wikiCodeCleanerDir = new File("src/main/python/WikiCodeCleaner/");
+			pb.directory(wikiCodeCleanerDir);
+			Process p = pb.start();
 
 			processedIn = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
@@ -58,9 +62,9 @@ public class WikiCodeCleaner {
 			if (processedIn != null) {
 				try {
 					processedIn.close();
-				} catch (IOException ex) {
-					logger.log(Level.SEVERE, "The buffered reader could not be closed.", ex);
-					ex.printStackTrace(System.out);
+				} catch (IOException e) {
+					logger.log(Level.SEVERE, "The buffered reader could not be closed.", e);
+					e.printStackTrace(System.out);
 				}
 			}
 		}
