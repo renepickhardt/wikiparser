@@ -203,8 +203,6 @@ public class PageHistoryHandler extends DefaultHandler {
 				isUserId = false;
 			}
 		} else if (isText) {
-			text = text.replace('\n', ' ');
-			text = text.replace('\t', ' ');
 			assert (!isComment);
 			tmpCharacters.append(text);
 		} else if (isComment) {
