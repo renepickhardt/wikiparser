@@ -38,6 +38,7 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class PageHistoryHandler extends DefaultHandler {
 
+	private final static Logger logger = Logger.getLogger(PageHistoryHandler.class.getCanonicalName());
 	private final String PAGES_FILE_NAME = "pages.csv";
 	private final String REVISIONS_FILE_NAME = "revisions.csv";
 
@@ -134,7 +135,7 @@ public class PageHistoryHandler extends DefaultHandler {
 				isPage = false;
 				if (page.getNamespace() == 4) { // Wikipedia Namespace
 					if (page.getTitle().startsWith("Wikipedia:Articles for deletion")) { // deletion discussions
-						System.out.println("Processing a page with " + page.getRevisions().size() + " revisions.");
+						logger.log(Level.INFO, "Processing a page with {0} revisions.", page.getRevisions().size());
 						try {
 							FileWriter fw = new FileWriter(PAGES_FILE_NAME, true);
 							CSVWriter writer = new CSVWriter(fw, '\t');
@@ -148,13 +149,13 @@ public class PageHistoryHandler extends DefaultHandler {
 								String comment = currentRevision.getComment();
 								currentRevision.setComment(WikiCodeCleaner.clean(comment));
 								String text = currentRevision.getText();
-								currentRevision.setComment(WikiCodeCleaner.clean(text));
+								currentRevision.setText(WikiCodeCleaner.clean(text));
 
 								writer.writeNext(createPrintableRevision(currentRevision));
 							}
 							writer.close();
-						} catch (IOException ex) {
-							Logger.getLogger(PageHistoryHandler.class.getName()).log(Level.SEVERE, null, ex);
+						} catch (IOException e) {
+							logger.log(Level.SEVERE, "Could not write page or revision. The current page has the id: " + page.getId(), e);
 						}
 					}
 				}

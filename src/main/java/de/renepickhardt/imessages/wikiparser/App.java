@@ -25,7 +25,7 @@ public class App {
 	public static final String[] FILE_PATH_HISTORY = new String[]{System.getProperty("user.home"), "Downloads", "delete", "wiki", "enwiki-20150429-pages-meta-hist-incr.xml.bz2"};
 	private final static Logger logger = Logger.getLogger(App.class.getCanonicalName());
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		if (args.length < 1) {
 			throw new IllegalArgumentException("This method expects a parameter indicating whether you want to process a log file (\"log\") or page histories (\"history').");
 		}
@@ -47,7 +47,7 @@ public class App {
 		} catch (FileNotFoundException e) {
 			logger.log(Level.SEVERE, "Could not access {0}", absoluteFilePath);
 		} catch (IOException | CompressorException e) {
-			e.printStackTrace();
+			logger.log(Level.SEVERE, "An IOException or CompressorException occured.", e);
 		}
 	}
 

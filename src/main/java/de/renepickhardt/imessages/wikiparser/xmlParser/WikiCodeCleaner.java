@@ -42,17 +42,27 @@ public class WikiCodeCleaner {
 	 */
 	public static String clean(String in) {
 		StringBuilder out = new StringBuilder();
+		BufferedReader processedIn = null;
 		try {
 			Process p = Runtime.getRuntime().exec("python src/main/python/WikiCodeCleaner/clean.py \"" + in + "\"");
 
-			BufferedReader processedIn = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			processedIn = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
 			String line;
 			while ((line = processedIn.readLine()) != null) {
 				out.append(line);
 			}
 		} catch (IOException e) {
-			logger.log(Level.SEVERE, "The Python script to clean the WikiCode syntax raised an unrecoverable error. It must be fixed and this parsing must be re-run for proper results. To allow the inspection of all errors that might occur with the current dataset, the process is continued and the input string of this method is being returned as-is. The detailed error was:{0}", e.getLocalizedMessage());
+			logger.log(Level.SEVERE, "The Python script to clean the WikiCode syntax raised an unrecoverable error. It must be fixed and this parsing must be re-run for proper results. To allow the inspection of all errors that might occur with the current dataset, the process is continued and the input string of this method is being returned as-is. The detailed error was:", e);
+		} finally {
+			if (processedIn != null) {
+				try {
+					processedIn.close();
+				} catch (IOException ex) {
+					logger.log(Level.SEVERE, "The buffered reader could not be closed.", ex);
+					ex.printStackTrace(System.out);
+				}
+			}
 		}
 
 		return out.toString();
