@@ -39,17 +39,19 @@ public class WikiCodeCleaner {
 	 * @param in any String that should be cleansed of markup and symbols unused
 	 * by our later processing.
 	 * @return input text without markup and other symbols that are of no use for
-	 * us.
+	 * us. Also returns an empty String if {@code in} is {@code null}.
 	 */
 	public static String clean(String in) {
+		if (in == null || in.isEmpty()) {
+			return "";
+		}
 		StringBuilder out = new StringBuilder();
 		BufferedReader processedIn = null;
+		ProcessBuilder pb = new ProcessBuilder("python", "clean.py", in);
+		File wikiCodeCleanerDir = new File("src/main/python/WikiCodeCleaner/");
+		pb.directory(wikiCodeCleanerDir);
 		try {
-			ProcessBuilder pb = new ProcessBuilder("python", "clean.py", in);
-			File wikiCodeCleanerDir = new File("src/main/python/WikiCodeCleaner/");
-			pb.directory(wikiCodeCleanerDir);
 			Process p = pb.start();
-
 			processedIn = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
 			String line;
