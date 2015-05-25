@@ -25,8 +25,7 @@ def compact(text):
     """
 
     out = ""                    # list of paragraph
-    headers = {}                # Headers for unfilled sections
-    emptySection = False        # empty sections are discarded
+    isEmptySection = False      # empty sections are discarded
     listLevel = ''              # nesting of lists
 
     for line in text.split('\n'):
@@ -36,16 +35,10 @@ def compact(text):
         # Handle section titles
         m = section.match(line)
         if m:
-            import pdb; pdb.set_trace()
             title = m.group(2)
             lev = len(m.group(1))
             title = appendPeriod(title)
-            headers[lev] = title
-            # drop previous headers
-            for i in headers.keys():
-                if i > lev:
-                    del(headers[i])
-            emptySection = True
+            isEmptySection = True
             out += title
             continue
         # Handle page title
@@ -74,11 +67,10 @@ def compact(text):
         # Drop irrelevant lines
         elif (line[0] == '(' and line[-1] == ')') or line.strip('.-') == '':
             continue
-        elif len(headers):
-            headers.clear()
+        elif isEmptySection:
             out += line # first line
-            emptySection = False
-        elif not emptySection:
+            isEmptySection = False
+        elif not isEmptySection:
             out += line
         # dangerous
         # # Drop preformatted
