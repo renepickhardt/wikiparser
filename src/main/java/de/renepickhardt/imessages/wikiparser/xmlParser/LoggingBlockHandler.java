@@ -119,6 +119,12 @@ public class LoggingBlockHandler extends DefaultHandler {
 				try {
 					if ("block".equals(logItem.getAction().toLowerCase(Locale.ENGLISH))) {
 						if (!logItem.isTitleAnIpAddress()) {
+							// clean the comment and write it back into the object:
+							String comment = logItem.getComment();
+							if (comment != null) {
+								comment = WikiCodeCleaner.clean(comment);
+								logItem.setComment(comment.toLowerCase(Locale.ENGLISH));
+							}
 							try (FileWriter fw = new FileWriter(FILE_NAME, true); CSVWriter writer = new CSVWriter(fw, '\t')) {
 								writer.writeNext(logItem.toStringArray());
 							}
@@ -135,7 +141,9 @@ public class LoggingBlockHandler extends DefaultHandler {
 	public void characters(char[] ch, int start, int length) throws SAXException {
 		String text = new String(ch, start, length);
 		if (isTimestamp) {
-			logItem.setTimestamp(text);
+			// Timestamps are encoded as yyyy-MM-ddTHH-mm-ssZ (e.g. "2004-12-23T23:44:47Z")
+			String timestamp = text.replace("T", " ").replace("Z", "");
+			logItem.setTimestamp(timestamp);
 			isTimestamp = false;
 		} else if (isContributor) {
 			if (isUserName) {

@@ -47,7 +47,7 @@ public class WikiCodeCleaner {
 		}
 		StringBuilder out = new StringBuilder();
 		BufferedReader processedIn = null;
-		ProcessBuilder pb = new ProcessBuilder("python", "clean.py", in);
+		ProcessBuilder pb = new ProcessBuilder("python", "clean.py", "clean", "-d", in);
 		File wikiCodeCleanerDir = new File("src/main/python/WikiCodeCleaner/");
 		pb.directory(wikiCodeCleanerDir);
 		try {
