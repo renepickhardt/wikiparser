@@ -18,15 +18,7 @@ def process(inputFile, outputFile):
         logWriter = csv.writer(outputFile, delimiter='\t',
                                    quotechar='|', quoting=csv.QUOTE_MINIMAL)
 
-        i = 0
-        import time
-        x = time.time()
         for [action, comment, userId, userName, logItemId, timestamp, blockedUserName] in logReader:
-            i += 1
-            if i % 100 == 0:
-                y = time.time()
-                print ( y - x )
-                x = time.time()
             comment = comment.lower()
             cleanedComment = cleanWikiCode(comment).strip()
             # TODO filter by comment content
