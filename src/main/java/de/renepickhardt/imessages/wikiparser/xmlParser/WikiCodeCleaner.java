@@ -73,26 +73,4 @@ public class WikiCodeCleaner {
 
 		return out.toString();
 	}
-
-	/**
-	 *
-	 * @param in file name (or path to file) that identifies an unprocessed block
-	 * log CSV file.
-	 * @param out file name (or path to file) to which the processed information
-	 * should be written.
-	 * @return {@code true} if the Python script did not throw an
-	 * {@code IOException}. {@code false} else.
-	 */
-	public static boolean postProcess(String in, String out) {
-		ProcessBuilder pb = new ProcessBuilder("python", "postProcessBlockLog.py", in, out);
-		File pythonSrcDir = new File("src/main/python/");
-		pb.directory(pythonSrcDir);
-		try {
-			pb.start();
-		} catch (IOException e) {
-			logger.log(Level.SEVERE, "The Python script to post process the log raised an unrecoverable error. It must be fixed and this parsing must be re-run for proper results. To allow the inspection of all errors that might occur with the current dataset, the process is continued and the input string of this method is being returned as-is. The detailed error was:", e);
-			return false;
-		}
-		return true;
-	}
 }

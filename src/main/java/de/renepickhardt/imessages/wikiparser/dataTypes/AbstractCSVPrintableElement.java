@@ -95,8 +95,7 @@ public abstract class AbstractCSVPrintableElement {
 	 * <p>
 	 * Retrieves all attributes including inherited ones.
 	 * <p>
-	 * The returned list <b>will be</b> sorted although
-	 * {@code getAttributesAmount()} is not.
+	 * The returned list <b>will be</b> sorted.
 	 * <p>
 	 * @see #sort(java.util.ArrayList)
 	 * <p>

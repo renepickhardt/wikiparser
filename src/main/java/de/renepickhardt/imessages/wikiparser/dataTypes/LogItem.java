@@ -1,5 +1,8 @@
 package de.renepickhardt.imessages.wikiparser.dataTypes;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import org.apache.commons.validator.routines.InetAddressValidator;
 
 public class LogItem extends AbstractWikiContentElement {
@@ -72,5 +75,39 @@ public class LogItem extends AbstractWikiContentElement {
 			return false;
 		}
 		return false;
+	}
+
+	/**
+	 * <p>
+	 * Retrieves all attributes including inherited ones except for {@code action}
+	 * and {@code id}.
+	 * <p>
+	 * The returned list <b>will be</b> sorted.
+	 * <p>
+	 * @see #sort(java.util.ArrayList)
+	 * <p>
+	 * Final fields are ignored just as {@code attributesAmount} and a potential
+	 * {@code $assertionsDisabled} attribute.
+	 * <p>
+	 * @return all attributes of this object except for {@code action} and
+	 * {@code id}.
+	 */
+	@Override
+	protected ArrayList<Field> getAllAttributes() {
+		ArrayList<Field> attributes = new ArrayList<>();
+		for (Class<?> c = this.getClass(); c != null; c = c.getSuperclass()) {
+			Field[] declaredFields = c.getDeclaredFields();
+			for (Field field : declaredFields) {
+				if (!"$assertionsDisabled".equals(field.getName())
+								&& !"attributesAmount".equals(field.getName())
+								&& !"id".equals(field.getName())
+								&& !"action".equals(field.getName())
+								&& !Modifier.isFinal(field.getModifiers())) {
+					attributes.add(field);
+				}
+			}
+		}
+		this.attributesAmount = attributes.size();
+		return this.sort(attributes);
 	}
 }

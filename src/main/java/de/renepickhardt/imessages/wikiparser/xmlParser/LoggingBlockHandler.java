@@ -18,7 +18,6 @@ package de.renepickhardt.imessages.wikiparser.xmlParser;
 
 import com.opencsv.CSVWriter;
 import de.renepickhardt.imessages.wikiparser.dataTypes.LogItem;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Locale;
@@ -40,7 +39,6 @@ public class LoggingBlockHandler extends DefaultHandler {
 
 	private final static Logger logger = Logger.getLogger(LoggingBlockHandler.class.getCanonicalName());
 
-	private final String FILE_NAME_TEMP = "blockItems_temp.csv";
 	private final String FILE_NAME = "blockItems.csv";
 
 	private LogItem logItem;
@@ -123,7 +121,10 @@ public class LoggingBlockHandler extends DefaultHandler {
 				try {
 					if ("block".equals(logItem.getAction().toLowerCase(Locale.ENGLISH))) {
 						if (!logItem.wasBlockedUserAnonymous()) {
-							try (FileWriter fw = new FileWriter(FILE_NAME_TEMP, true); CSVWriter writer = new CSVWriter(fw, '\t')) {
+							String cleanedComment = WikiCodeCleaner.clean(logItem.getComment());
+							logItem.setComment(cleanedComment.trim().toLowerCase(Locale.ENGLISH));
+							// TODO filter the printing depending on the comment's content
+							try (FileWriter fw = new FileWriter(FILE_NAME, true); CSVWriter writer = new CSVWriter(fw, '\t')) {
 								writer.writeNext(logItem.toStringArray());
 							}
 						}
@@ -163,27 +164,6 @@ public class LoggingBlockHandler extends DefaultHandler {
 		} else if (isLogItemId) {
 			logItem.setId(text);
 			isLogItemId = false;
-		}
-	}
-
-	/**
-	 * Post processes the intermediate block log by calling a python script. This
-	 * one will also remove any WikiCode markup from the comments and filter the
-	 * relevant block entries by their comment.
-	 *
-	 * @throws SAXException
-	 */
-	@Override
-	public void endDocument() throws SAXException {
-		super.endDocument();
-		logger.log(Level.INFO, "Now starting post processing the intermediate block log results.");
-		boolean wasPostProcessingSuccessful = WikiCodeCleaner.postProcess(FILE_NAME_TEMP, FILE_NAME);
-		if (wasPostProcessingSuccessful) {
-			File tempFile = new File(FILE_NAME_TEMP);
-			//tempFile.deleteOnExit();
-			logger.log(Level.INFO, "Post processing was successful and the temporary file will be deleted when this program terminates.");
-		} else {
-			logger.log(Level.SEVERE, "Post processing was not successful.");
 		}
 	}
 }
