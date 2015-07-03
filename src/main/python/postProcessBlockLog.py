@@ -3,10 +3,10 @@
 #author: Michael Ruster
 
 def process(inputFile, outputFile):
-    """ Reads a block log CSV, cleans the comment, reorders the output,
-    drops the action (which is always 'block') and writes it to disk
-    according to outputFile. Please be aware that, if writing permissions
-    are given for outputFile, it will blindly overwrite everything you love.
+    """ Reads a block log CSV, cleans the comment, reorders the output and
+    writes it to disk according to outputFile. Please be aware that, if
+    writing permissions are given for outputFile, it will blindly overwrite
+    everything you love.
     """
     import csv
     from sys import path
@@ -18,7 +18,7 @@ def process(inputFile, outputFile):
         logWriter = csv.writer(outputFile, delimiter='\t',
                                    quotechar='|', quoting=csv.QUOTE_MINIMAL)
 
-        for [action, comment, userId, userName, logItemId, timestamp, blockedUserName] in logReader:
+        for [comment, userId, userName, timestamp, blockedUserName] in logReader:
             comment = comment.lower()
             cleanedComment = cleanWikiCode(comment).strip()
             # TODO filter by comment content
