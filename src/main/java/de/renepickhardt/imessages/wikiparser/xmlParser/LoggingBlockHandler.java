@@ -122,6 +122,12 @@ public class LoggingBlockHandler extends DefaultHandler {
 			case "logitem":
 				try {
 					if ("block".equals(logItem.getAction().toLowerCase(Locale.ENGLISH))) {
+						String title = logItem.getTitle();
+						/**
+						 * Truncates "User:" from the title to turn it into the user name.
+						 */
+						String blockedUserName = title.substring(5);
+						logItem.setTitle(blockedUserName);
 						if (!logItem.wasBlockedUserAnonymous()) {
 							try (FileWriter fw = new FileWriter(FILE_NAME_TEMP, true); CSVWriter writer = new CSVWriter(fw, '\t')) {
 								writer.writeNext(logItem.toStringArray());

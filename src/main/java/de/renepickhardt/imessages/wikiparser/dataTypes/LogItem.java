@@ -53,22 +53,11 @@ public class LogItem extends AbstractWikiContentElement {
 	 */
 	public boolean wasBlockedUserAnonymous() {
 		try {
-			/**
-			 * Truncates "Benutzer:" from the title
-			 */
-			String titleSubstringDE = title.substring(9);
-			/**
-			 * Truncates "User:" from the title
-			 */
-			String titleSubstringEN = title.substring(5);
-
 			// Sometimes, a whole subnet was blocked (e.g. 200.67.239.0/24)
-			titleSubstringDE = titleSubstringDE.split("/")[0];
-			titleSubstringEN = titleSubstringEN.split("/")[0];
+			String splitTitle = title.split("/")[0];
 
 			InetAddressValidator ipAddressValidator = InetAddressValidator.getInstance();
-			if (ipAddressValidator.isValid(titleSubstringDE)
-							|| ipAddressValidator.isValid(titleSubstringEN)) {
+			if (ipAddressValidator.isValid(splitTitle)) {
 				return true;
 			}
 		} catch (Exception e) {
