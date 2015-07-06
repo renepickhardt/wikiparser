@@ -43,55 +43,23 @@ public class LoggingBlockHandler extends DefaultHandler {
 	private final String FILE_NAME_TEMP = "blockItems_temp.csv";
 	private final String FILE_NAME = "blockItems.csv";
 
+	private int incompleteLogItemsCount = 0;
 	private LogItem logItem;
-	private boolean isTimestamp = false;
 	/**
 	 * In block logs, the contributor is an administrator.
 	 */
 	private boolean isContributor = false;
-	private boolean isUserId = false;
-	private boolean isUserName = false;
-	private boolean isAction = false;
-	private boolean isComment = false;
-	/**
-	 * The logtitle identifies the blocked object. In the case of the block log,
-	 * this is our blocked user.
-	 */
-	private boolean isLogTitle = false;
-	private boolean isLogItemId = false;
+	private StringBuilder tmpCharacters;
 
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
+		tmpCharacters = new StringBuilder();
 		switch (qName) {
 			case ("logitem"):
 				logItem = new LogItem();
 				break;
-			case ("timestamp"):
-				isTimestamp = true;
-				break;
 			case ("contributor"):
 				isContributor = true;
-				break;
-			case ("id"):
-				if (isContributor) {
-					isUserId = true;
-				} else {
-					isLogItemId = true;
-				}
-				break;
-			case ("username"):
-				if (isContributor) {
-					isUserName = true;
-				}
-				break;
-			case ("action"):
-				isAction = true;
-				break;
-			case ("logtitle"):
-				isLogTitle = true;
-				break;
-			case ("comment"):
-				isComment = true;
 				break;
 			default:
 				break;
@@ -100,8 +68,10 @@ public class LoggingBlockHandler extends DefaultHandler {
 
 	/**
 	 * <p>
-	 * This method writes logItems to disk when they are of action type block and
-	 * the blocked user is a registered user (not an IP address).
+	 * This method writes all text of this element into the matching attribute (if
+	 * of interest). Furthermore, if this logItem ends, it is written to disk when
+	 * they are of action type block and the blocked user is a registered user
+	 * (not an IP address).
 	 * <p>
 	 * @param uri The Namespace URI, or the empty string if the element has no
 	 * Namespace URI or if Namespace processing is not being performed.
@@ -115,7 +85,34 @@ public class LoggingBlockHandler extends DefaultHandler {
 	 */
 	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException {
+		String text = tmpCharacters.toString();
 		switch (qName) {
+			case ("timestamp"):
+				// Timestamps are encoded as yyyy-MM-ddTHH-mm-ssZ (e.g. "2004-12-23T23:44:47Z")
+				String timestamp = text.replace("T", " ").replace("Z", "");
+				logItem.setTimestamp(timestamp);
+				break;
+			case ("username"):
+				if (isContributor) {
+					logItem.setUserName(text);
+				}
+				break;
+			case ("id"):
+				if (isContributor) {
+					logItem.setUserId(text);
+				} else {
+					logItem.setId(text);
+				}
+				break;
+			case ("action"):
+				logItem.setAction(text);
+				break;
+			case ("comment"):
+				logItem.setComment(text);
+				break;
+			case ("logtitle"):
+				logItem.setTitle(text);
+				break;
 			case "contributor":
 				isContributor = false;
 				break;
@@ -123,15 +120,23 @@ public class LoggingBlockHandler extends DefaultHandler {
 				try {
 					if ("block".equals(logItem.getAction().toLowerCase(Locale.ENGLISH))) {
 						String title = logItem.getTitle();
-						/**
-						 * Truncates "User:" from the title to turn it into the user name.
-						 */
-						String blockedUserName = title.substring(5);
-						logItem.setTitle(blockedUserName);
-						if (!logItem.wasBlockedUserAnonymous()) {
-							try (FileWriter fw = new FileWriter(FILE_NAME_TEMP, true); CSVWriter writer = new CSVWriter(fw, '\t')) {
-								writer.writeNext(logItem.toStringArray());
+						try {
+							/**
+							 * Truncates "User:" from the title to turn it into the user name.
+							 */
+							String blockedUserName = title.substring(5);
+							logItem.setTitle(blockedUserName);
+							if (logItem.getComment().isEmpty() || logItem.getTimestamp().isEmpty()) {
+								throw new NullPointerException();
 							}
+							if (!logItem.wasBlockedUserAnonymous()) {
+								try (FileWriter fw = new FileWriter(FILE_NAME_TEMP, true); CSVWriter writer = new CSVWriter(fw, '\t')) {
+									writer.writeNext(logItem.toStringArray());
+								}
+							}
+						} catch (NullPointerException e) {
+							incompleteLogItemsCount++;
+							logger.log(Level.FINE, "Due to missing crucial data (blocked user name, timestamp or comment), this log item is useless for us:\n{0}", logItem.toString());
 						}
 					}
 				} catch (IOException ex) {
@@ -144,32 +149,7 @@ public class LoggingBlockHandler extends DefaultHandler {
 	@Override
 	public void characters(char[] ch, int start, int length) throws SAXException {
 		String text = new String(ch, start, length);
-		if (isTimestamp) {
-			// Timestamps are encoded as yyyy-MM-ddTHH-mm-ssZ (e.g. "2004-12-23T23:44:47Z")
-			String timestamp = text.replace("T", " ").replace("Z", "");
-			logItem.setTimestamp(timestamp);
-			isTimestamp = false;
-		} else if (isContributor) {
-			if (isUserName) {
-				logItem.setUserName(text);
-				isUserName = false;
-			} else if (isUserId) {
-				logItem.setUserId(text);
-				isUserId = false;
-			}
-		} else if (isAction) {
-			logItem.setAction(text);
-			isAction = false;
-		} else if (isComment) {
-			logItem.setComment(text);
-			isComment = false;
-		} else if (isLogTitle) {
-			logItem.setTitle(text);
-			isLogTitle = false;
-		} else if (isLogItemId) {
-			logItem.setId(text);
-			isLogItemId = false;
-		}
+		tmpCharacters.append(text);
 	}
 
 	/**
@@ -182,6 +162,7 @@ public class LoggingBlockHandler extends DefaultHandler {
 	@Override
 	public void endDocument() throws SAXException {
 		super.endDocument();
+		logger.log(Level.INFO, "{0} block items have been skipped due to incomplete data.", incompleteLogItemsCount);
 		logger.log(Level.INFO, "Now starting post processing the intermediate block log results.");
 		boolean wasPostProcessingSuccessful = WikiCodeCleaner.postProcess("../../../" + FILE_NAME_TEMP, "../../../" + FILE_NAME);
 		if (wasPostProcessingSuccessful) {
