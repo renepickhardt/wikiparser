@@ -11,7 +11,12 @@ def process(inputFile, outputFile):
     import csv
     from sys import path
     path.append("./WikiCodeCleaner")
-    from WikiCodeCleaner.clean import clean as cleanWikiCode
+    try:
+        from WikiCodeCleaner.clean import clean as cleanWikiCode
+    except ImportError:
+        # Ubuntu 12.04's Python 3.2.3 behaves differently:
+        from clean import clean as cleanWikiCode
+
 
     with inputFile:
         logReader = csv.reader(inputFile, delimiter='\t', quotechar='"')
