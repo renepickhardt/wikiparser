@@ -47,7 +47,7 @@ public class WikiCodeCleaner {
 		}
 		StringBuilder out = new StringBuilder();
 		BufferedReader processedIn = null;
-		ProcessBuilder pb = new ProcessBuilder("python", "clean.py", "clean", "-d", in);
+		ProcessBuilder pb = new ProcessBuilder("python3", "clean.py", "clean", "-d", in);
 		File wikiCodeCleanerDir = new File("src/main/python/WikiCodeCleaner/");
 		pb.directory(wikiCodeCleanerDir);
 		try {
@@ -84,7 +84,7 @@ public class WikiCodeCleaner {
 	 * {@code IOException}. {@code false} else.
 	 */
 	public static boolean postProcess(String in, String out) {
-		ProcessBuilder pb = new ProcessBuilder("python", "postProcessBlockLog.py", in, out);
+		ProcessBuilder pb = new ProcessBuilder("python3", "postProcessBlockLog.py", in, out);
 		File pythonSrcDir = new File("src/main/python/");
 		pb.directory(pythonSrcDir);
 		try {
