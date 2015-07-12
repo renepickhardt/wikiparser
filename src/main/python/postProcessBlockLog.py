@@ -16,7 +16,7 @@ def process(inputFile, outputFile):
     except ImportError:
         # Ubuntu 12.04's Python 3.2.3 behaves differently:
         from clean import clean as cleanWikiCode
-
+    ignoredBlocksCount = 0
 
     with inputFile:
         logReader = csv.reader(inputFile, delimiter='\t', quotechar='"')
@@ -26,12 +26,56 @@ def process(inputFile, outputFile):
         for [comment, userId, userName, timestamp, blockedUserName] in logReader:
             comment = comment.lower()
             cleanedComment = cleanWikiCode(comment).strip()
-            # TODO filter by comment content
-            logWriter.writerow([timestamp,
-                                blockedUserName,
-                                cleanedComment,
-                                userId,
-                                userName])
+            if isCommentOfInterest(cleanedComment):
+                logWriter.writerow([timestamp,
+                                    blockedUserName,
+                                    cleanedComment,
+                                    userId,
+                                    userName])
+            else:
+                ignoredBlocksCount += 1
+                print('[%i] Ignoring "%s".' % (ignoredBlocksCount, comment))
+
+def isCommentOfInterest(comment):
+    """ Drop blocks that seem to be issued due to behaviour that is of no
+    interest to us. This includes automated and testing behaviour. Also,
+    here are some word combinations that could be of interest:
+
+        badWords = ['copyright violation', 'copyright infringement', # 'promotional account', 'spam advertising', 'advertising purposes', 'matches the name of a business', 'advertising', 'matches the name of a website', 'advertising name of', 'name of company', 'commercial username', 'band name', 'company name'
+                    # 'abusing multiple accounts', 'promoting socking', 'sock puppet', 'sockpuppetry', 'sockpuppet', 'sock'
+                    'represent organization', # a Wikipedia account is not meant to represent an organization
+                    'violation of the username policy', 'inappropriate username', 'username vandal', 'vandalism user name', 'username violation', 'user renamed', 'username policy', 'username block', 'get a new username', 'name', 'username closely matches', 'bad username', 'confusing username', 'choose another username', 'obscene username', 'attack username'
+                    'spambot', 'spam bot', 'vandalbot', 'vandal bot', 'bot malfunction', 'unapproved bot', 'referral spammer', 'spamonly', 'botlike' # 'spamming', 'spamonly account' 'spam only account'
+                    # 'troll', 'idiot', 'go away'
+                    'unsourced content', 'cited source', 'misinformation'
+                    'fake articles', 'inappropriate pages', 'nonsense pages',
+                    'test', # 'wordbomb',
+                    # 'wikistalking'
+                    # 'compromised account', 'gibberish', 'impersonator'
+                    'user request',
+                    'mass attack' # 'part of a mass attack'
+        ]
+        goodWords = ['vandal', 'attack', 'harassment', 'threat', 'hating'] # 'death threat', 'legal threat',
+
+    We are testing for 'in words' if testing as a substring of comments
+    would most likely return false positives (e.g. 'bot' in 'both').
+    """
+    words = comment.split(' ')
+    if (  'bot' in words or                         # bot content
+          'vandalbot' in comment or
+          'spambot' in comment or
+          'user request' in comment or              # voluntary block
+          'mass attack' in comment or               # automated attack
+          # These may add too much noise to our data but also are typical
+          # user behaviour that could be nice to detect:
+          'referral spam' in comment or             # spam (there are way more elaborte anti-spam measures already)
+          'copyright' in comment or                 # copyright infringement (hardly detectable on just world-level)
+          # 'advertisement' in words or               # promotional content
+          (len(words) == 1 and 'test' in comment)   # test
+        ):
+        return False
+
+    return True
 
 if __name__ == "__main__":
     import argparse
