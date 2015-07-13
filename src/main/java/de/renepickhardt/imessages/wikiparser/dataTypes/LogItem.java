@@ -2,13 +2,14 @@ package de.renepickhardt.imessages.wikiparser.dataTypes;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import org.apache.commons.validator.routines.InetAddressValidator;
 
 public class LogItem extends AbstractWikiContentElement {
 
 	protected String action;
-	protected String timestamp;
+	protected ZonedDateTime timestamp;
 	protected String title;
 
 	@Override
@@ -24,11 +25,11 @@ public class LogItem extends AbstractWikiContentElement {
 		this.action = action;
 	}
 
-	public String getTimestamp() {
+	public ZonedDateTime getTimestamp() {
 		return timestamp;
 	}
 
-	public void setTimestamp(String timestamp) {
+	public void setTimestamp(ZonedDateTime timestamp) {
 		this.timestamp = timestamp;
 	}
 

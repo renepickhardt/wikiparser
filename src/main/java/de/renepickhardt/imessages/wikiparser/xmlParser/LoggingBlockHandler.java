@@ -21,6 +21,9 @@ import de.renepickhardt.imessages.wikiparser.dataTypes.LogItem;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -88,9 +91,12 @@ public class LoggingBlockHandler extends DefaultHandler {
 		String text = tmpCharacters.toString();
 		switch (qName) {
 			case ("timestamp"):
-				// Timestamps are encoded as yyyy-MM-ddTHH-mm-ssZ (e.g. "2004-12-23T23:44:47Z")
-				String timestamp = text.replace("T", " ").replace("Z", "");
-				logItem.setTimestamp(timestamp);
+				try {
+					ZonedDateTime time = ZonedDateTime.parse(text);
+					logItem.setTimestamp(time);
+				} catch (DateTimeParseException e) {
+					logger.log(Level.FINEST, "Incorrect timestamp found.", e);
+				}
 				break;
 			case ("username"):
 				if (isContributor) {
@@ -126,7 +132,10 @@ public class LoggingBlockHandler extends DefaultHandler {
 							 */
 							String blockedUserName = title.substring(5);
 							logItem.setTitle(blockedUserName);
-							if (logItem.getComment().isEmpty() || logItem.getTimestamp().isEmpty()) {
+							if ( // only add logItmes that contain all necessary data:
+											logItem.getComment().isEmpty()
+											|| logItem.getTimestamp() == null
+											|| blockedUserName.isEmpty()) {
 								throw new NullPointerException();
 							}
 							if (!logItem.wasBlockedUserAnonymous()) {
