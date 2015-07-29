@@ -53,9 +53,9 @@ def isCommentOfInterest(comment):
                     # 'wikistalking'
                     # 'compromised account', 'gibberish', 'impersonator'
                     'user request',
-                    'mass attack' # 'part of a mass attack'
+                    'mass attack'
         ]
-        goodWords = ['vandal', 'attack', 'harassment', 'threat', 'hating'] # 'death threat', 'legal threat',
+        goodWords = ['vandal', 'attack', 'harassment', 'threat', 'hating','death threat', 'legal threat']
 
     We are testing for 'in words' if testing as a substring of comments
     would most likely return false positives (e.g. 'bot' in 'both').
@@ -66,11 +66,17 @@ def isCommentOfInterest(comment):
           'spambot' in comment or
           'user request' in comment or              # voluntary block
           'mass attack' in comment or               # automated attack
+          'username' in words or                    # user names because they might act in a collaborative manner but have been blocked solely due to their promo purposes (or because they had provoking names)
+          'user name' in comment or
+          'unsourced content' in comment or         # unsourced content -- might collaborate in a well-intended manner but fails on a level that we cannot detect with our approach
+          'cited source' in comment or
           # These may add too much noise to our data but also are typical
           # user behaviour that could be nice to detect:
           'referral spam' in comment or             # spam (there are way more elaborte anti-spam measures already)
+          'spamonly' in words or
+          'spam only' in comment or
           'copyright' in comment or                 # copyright infringement (hardly detectable on just world-level)
-          # 'advertisement' in words or               # promotional content
+          'advertis' in comment or                  # promotional content
           (len(words) == 1 and 'test' in comment)   # test
         ):
         return False
