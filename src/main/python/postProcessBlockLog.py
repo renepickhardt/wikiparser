@@ -34,7 +34,7 @@ def process(inputFile, outputFile):
                                     userName])
             else:
                 ignoredBlocksCount += 1
-                print('[%i] Ignoring "%s".' % (ignoredBlocksCount, comment))
+    print('[I] Ignored %i comments' % ignoredBlocksCount)
 
 def isCommentOfInterest(comment):
     """ Drop blocks that seem to be issued due to behaviour that is of no
@@ -61,27 +61,40 @@ def isCommentOfInterest(comment):
     would most likely return false positives (e.g. 'bot' in 'both').
     """
     words = comment.split(' ')
-    if (  'bot' in words or                         # bot content
-          'vandalbot' in comment or
-          'spambot' in comment or
-          'user request' in comment or              # voluntary block
-          'mass attack' in comment or               # automated attack
-          'username' in words or                    # user names because they might act in a collaborative manner but have been blocked solely due to their promo purposes (or because they had provoking names)
-          'user name' in comment or
-          'unsourced content' in comment or         # unsourced content -- might collaborate in a well-intended manner but fails on a level that we cannot detect with our approach
-          'cited source' in comment or
-          # These may add too much noise to our data but also are typical
-          # user behaviour that could be nice to detect:
-          'referral spam' in comment or             # spam (there are way more elaborte anti-spam measures already)
-          'spamonly' in words or
-          'spam only' in comment or
-          'copyright' in comment or                 # copyright infringement (hardly detectable on just world-level)
-          'advertis' in comment or                  # promotional content
-          (len(words) == 1 and 'test' in comment)   # test
+    if ( 'personal attack' in comment or                   # personal attacks
+         'wpnpa' in words or
+         'npa' in words or
+         'harass' in comment or                            # harassment
+         'wpharassment' in words or
+         'threat' in comment or                            # legal/death threats
+         'wpnlt' in words or
+         'nlt' in words or
+         'hating' in words                                 # hating
         ):
-        return False
+        if ( 'bot' in words or                         # bot content
+             'vandalbot' in comment or
+             'spambot' in comment or
+             'user request' in comment or              # voluntary block
+             'mass attack' in comment or               # automated attack
+             'username' in words or                    # user names because they might act in a collaborative manner but have been blocked solely due to their promo puposes (or because they had provoking names)
+             'user name' in comment or
+             'unsourced content' in comment or         # unsourced content -- might collaborate in a well-intended manner but fails on a level that we cannot detect wih our approach
+             'cited source' in comment or
+             # These may add too much noise to our data but also are typical
+             # user behaviour that could be nice to detect:
+             'referral spam' in comment or             # spam (there are way more elaborte anti-spam measures already)
+             'spamonly' in words or
+             'spam only' in comment or
+             'copyright' in comment or                 # copyright infringement (hardly detectable on just world-level)
+             'advertis' in comment or                  # promotional content
+             'test' in comment                         # test
+            ):
+            print('[I] Ignoring block "%s"' % comment)
+            return False
+        else:
+            return True
 
-    return True
+    return False
 
 if __name__ == "__main__":
     import argparse
