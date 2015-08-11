@@ -63,11 +63,20 @@ def isCommentOfInterest(comment):
     words = comment.split(' ')
     if ( 'personal attack' in comment or                   # personal attacks
          'wpnpa' in words or
+         'wppersonal' in words or
+         'wpnopersonalattacks' in words or
          'npa' in words or
          'harass' in comment or                            # harassment
+         'wpha' in words or
+         'wphar' in words or
+         'wpharass' in words or
          'wpharassment' in words or
          'threat' in comment or                            # legal/death threats
          'wpnlt' in words or
+         'wplegal' in words or
+         'wpthreat' in words or
+         'wpsue' in words or
+         'wpnolegalthreats' in words or
          'nlt' in words or
          'hating' in words                                 # hating
         ):
