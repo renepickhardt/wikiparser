@@ -85,10 +85,6 @@ def isCommentOfInterest(comment):
              'spambot' in comment or
              'user request' in comment or              # voluntary block
              'mass attack' in comment or               # automated attack
-             'username' in words or                    # user names because they might act in a collaborative manner but have been blocked solely due to their promo puposes (or because they had provoking names)
-             'user name' in comment or
-             'unsourced content' in comment or         # unsourced content -- might collaborate in a well-intended manner but fails on a level that we cannot detect wih our approach
-             'cited source' in comment or
              # These may add too much noise to our data but also are typical
              # user behaviour that could be nice to detect:
              'referral spam' in comment or             # spam (there are way more elaborte anti-spam measures already)
