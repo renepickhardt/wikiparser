@@ -4,9 +4,6 @@ The wikiparser will exist for the “I”-messages project. It is a SAX-parser t
 ## How to execute
 * `git clone git@github.com:renepickhardt/wikiparser.git`
 * `mvn compile`
-* `mvn exec:java -Dexec.args="history"`
+* `mvn exec:java -Dexec.args="log"`
 
-Currently, the accepted parameters are `log` and `history` for processing log files and page histories respectively.
-
-## Goals
-The idea is to extend this parser with other handlers to process Wikipedia discussion pages and extract individual contributions.
+Currently, the accepted parameters are `log` and `history` for processing log files and page histories respectively. Although a rudimentary implementation of page history extraction exists, interested users should rather refer to [0nse/WikiWho DiscussionParser](https://github.com/0nse/WikiWho/tree/DiscussionsParser). WikiWho DiscussionParser is much more efficient (especially in terms of speed), elaborate and versatile.
