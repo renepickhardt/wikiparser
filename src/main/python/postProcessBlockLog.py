@@ -61,45 +61,21 @@ def isCommentOfInterest(comment):
     would most likely return false positives (e.g. 'bot' in 'both').
     """
     words = comment.split(' ')
-    if ( 'personal attack' in comment or                   # personal attacks
-         'wpnpa' in words or
-         'wppersonal' in words or
-         'wpnopersonalattacks' in words or
-         'npa' in words or
-         'harass' in comment or                            # harassment
-         'wpha' in words or
-         'wphar' in words or
-         'wpharass' in words or
-         'wpharassment' in words or
-         'threat' in comment or                            # legal/death threats
-         'wpnlt' in words or
-         'wplegal' in words or
-         'wpthreat' in words or
-         'wpsue' in words or
-         'wpnolegalthreats' in words or
-         'nlt' in words or
-         'hating' in words                                 # hating
+    if ( 'bot' in words or                         # bot content
+         'botlike' in words or
+         'vandalbot' in comment or
+         'spambot' in comment or
+         'user request' in comment or              # voluntary block
+         'mass attack' in comment or               # automated attack
+         'copyright' in comment or                 # copyright infringement (hardly detectable on just world-level)
+         'test' in comment or                      # test
+         'unsourced content' in comment or         # unsourced content
+         'cited source' in comment
         ):
-        if ( 'bot' in words or                         # bot content
-             'vandalbot' in comment or
-             'spambot' in comment or
-             'user request' in comment or              # voluntary block
-             'mass attack' in comment or               # automated attack
-             # These may add too much noise to our data but also are typical
-             # user behaviour that could be nice to detect:
-             'referral spam' in comment or             # spam (there are way more elaborte anti-spam measures already)
-             'spamonly' in words or
-             'spam only' in comment or
-             'copyright' in comment or                 # copyright infringement (hardly detectable on just world-level)
-             'advertis' in comment or                  # promotional content
-             'test' in comment                         # test
-            ):
-            print('[I] Ignoring block "%s"' % comment)
-            return False
-        else:
-            return True
+        print('[I] Ignoring block "%s"' % comment)
+        return False
 
-    return False
+    return True
 
 if __name__ == "__main__":
     import argparse
