@@ -79,5 +79,6 @@ docs/_build/
 # PyBuilder
 target/
 
-# Exclude my (momentarily) unused backup files of WikiExtractor.py
-src/main/python/WikiCodeCleaner/unused
+# Exclude NetBeans files:
+nb-configuration.xml
+nbactions.xml
