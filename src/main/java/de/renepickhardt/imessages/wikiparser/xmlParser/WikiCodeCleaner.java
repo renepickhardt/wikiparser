@@ -84,7 +84,7 @@ public class WikiCodeCleaner {
 	 * {@code IOException}. {@code false} else.
 	 */
 	public static boolean postProcess(String in, String out) {
-		ProcessBuilder pb = new ProcessBuilder("python3", "postProcessBlockLog.py", in, out);
+		ProcessBuilder pb = new ProcessBuilder("python3", "BlockLogPostProcessing.py", in, out);
 		File pythonSrcDir = new File("src/main/python/");
 		pb.directory(pythonSrcDir);
 		try {

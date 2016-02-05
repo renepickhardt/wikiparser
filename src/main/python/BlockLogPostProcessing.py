@@ -3,11 +3,11 @@
 #author: Michael Ruster
 
 def process(inputFile, outputFile):
-    """ Reads a block log CSV, cleans the comment, reorders the output and
+    ''' Reads a block log CSV, cleans the comment, reorders the output and
     writes it to disk according to outputFile. Please be aware that, if
     writing permissions are given for outputFile, it will blindly overwrite
     everything you love.
-    """
+    '''
     import csv
     from sys import path
     path.append("./WikiCodeCleaner")
@@ -37,7 +37,7 @@ def process(inputFile, outputFile):
     print('[I] Ignored %i comments' % ignoredBlocksCount)
 
 def isCommentOfInterest(comment):
-    """ Drop blocks that seem to be issued due to behaviour that is of no
+    ''' Drop blocks that seem to be issued due to behaviour that is of no
     interest to us. This includes automated and testing behaviour. Also,
     here are some word combinations that could be of interest:
 
@@ -59,7 +59,7 @@ def isCommentOfInterest(comment):
 
     We are testing for 'in words' if testing as a substring of comments
     would most likely return false positives (e.g. 'bot' in 'both').
-    """
+    '''
     words = comment.split(' ')
     if ( 'bot' in words or                         # bot content
          'botlike' in words or
@@ -67,7 +67,12 @@ def isCommentOfInterest(comment):
          'spambot' in comment or
          'user request' in comment or              # voluntary block
          'mass attack' in comment or               # automated attack
-         'copyright' in comment or                 # copyright infringement (hardly detectable on just world-level)
+         'copyright' in comment or                 # copyright infringement (hardly detectable on just word-level)
+	 'referral spam' in comment or             # spam (there are way more elaborte anti-spam measures already)
+	 'spamonly' in words or
+	 'spam only' in comment or
+	 'wpspam' in words or
+	 'advertis' in comment or
          'test' in comment or                      # test
          'unsourced content' in comment or         # unsourced content
          'cited source' in comment
@@ -80,10 +85,10 @@ def isCommentOfInterest(comment):
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description='Clean BlockLog comments so that symbols are removed and only space separated words are left.',
-                                     epilog="""
+                                     epilog='''
                                      WikiParser, Copyright (C) 2015 René Pickhardt, Michael Ruster.
                                      WikiCodeCleaner comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions. Launch this program with `licence' for details.
-                                     """)
+                                     ''')
     parser.add_argument('inputFile',  type=argparse.FileType('r'),
                         help='The path to the file to process (CSV).')
     parser.add_argument('outputFile',  type=argparse.FileType('w'),
