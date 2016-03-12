@@ -41,7 +41,7 @@ public class SAXParserBufferedReader extends BufferedReader {
 	 * <p>
 	 * Creates a new reader instance.
 	 * <p>
-	 * @param in       a Reader.
+	 * @param in a Reader.
 	 * @param encoding of the input stream.
 	 * <p>
 	 */

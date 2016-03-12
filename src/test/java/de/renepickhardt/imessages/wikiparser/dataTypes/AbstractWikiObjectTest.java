@@ -16,6 +16,7 @@
  */
 package de.renepickhardt.imessages.wikiparser.dataTypes;
 
+import java.time.ZonedDateTime;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -47,7 +48,7 @@ public class AbstractWikiObjectTest {
 		instance = new LogItem();
 		instance.setAction("test action");
 		instance.setComment("test comment");
-		instance.setTimestamp("2014-30-04");
+		instance.setTimestamp(ZonedDateTime.parse("2007-12-03T10:15:30Z"));
 		instance.setTitle("test title");
 		instance.setUserId("test user ID");
 		instance.setUserName("test user name");
@@ -66,12 +67,11 @@ public class AbstractWikiObjectTest {
 	@Test
 	public void testToStringArray() {
 		System.out.println("toStringArray");
-		String[] expResult = {instance.getAction(),
-													instance.getComment(),
-													instance.getUser().getId(),
-													instance.getUser().getName(),
-													instance.getTimestamp(),
-													instance.getTitle()};
+		String[] expResult = {instance.getComment(),
+			instance.getUser().getId(),
+			instance.getUser().getName(),
+			instance.getTimestamp().toString(),
+			instance.getTitle()};
 		String[] result = instance.toStringArray();
 		assertArrayEquals(expResult, result);
 	}
@@ -83,7 +83,7 @@ public class AbstractWikiObjectTest {
 	public void testGetAttributesAmount() {
 		System.out.println("getAttributesAmountRecursively");
 
-		int expResult = 5;
+		int expResult = 4; // timestamp, title, contributor, comment
 		int result = instance.getAttributesAmount();
 
 		assertEquals(expResult, result);

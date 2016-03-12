@@ -38,6 +38,7 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class PageHistoryHandler extends DefaultHandler {
 
+	private final static Logger logger = Logger.getLogger(PageHistoryHandler.class.getCanonicalName());
 	private final String PAGES_FILE_NAME = "pages.csv";
 	private final String REVISIONS_FILE_NAME = "revisions.csv";
 
@@ -57,6 +58,7 @@ public class PageHistoryHandler extends DefaultHandler {
 	private boolean isUserId = false;
 	private boolean isUserName = false;
 	private boolean isText = false;
+	private StringBuilder tmpCharacters;
 
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
@@ -93,14 +95,14 @@ public class PageHistoryHandler extends DefaultHandler {
 				}
 				break;
 			case ("text"):
-				if (isRevision) {
-					isText = true;
-				}
+				tmpCharacters = new StringBuilder();
+				isText = true;
 				break;
 			case ("title"):
 				isTitle = true;
 				break;
 			case ("comment"):
+				tmpCharacters = new StringBuilder();
 				isComment = true;
 				break;
 			case ("ns"):
@@ -117,6 +119,14 @@ public class PageHistoryHandler extends DefaultHandler {
 			case "contributor":
 				isContributor = false;
 				break;
+			case "text":
+				revision.setText(tmpCharacters.toString());
+				isText = false;
+				break;
+			case "comment":
+				revision.setComment(tmpCharacters.toString());
+				isComment = false;
+				break;
 			case "revision":
 				page.addRevision(revision);
 				isRevision = false;
@@ -125,7 +135,7 @@ public class PageHistoryHandler extends DefaultHandler {
 				isPage = false;
 				if (page.getNamespace() == 4) { // Wikipedia Namespace
 					if (page.getTitle().startsWith("Wikipedia:Articles for deletion")) { // deletion discussions
-						System.out.println("Processing a page with " + page.getRevisions().size() + " revisions.");
+						logger.log(Level.INFO, "Processing a page with {0} revisions.", page.getRevisions().size());
 						try {
 							FileWriter fw = new FileWriter(PAGES_FILE_NAME, true);
 							CSVWriter writer = new CSVWriter(fw, '\t');
@@ -135,11 +145,17 @@ public class PageHistoryHandler extends DefaultHandler {
 							fw = new FileWriter(REVISIONS_FILE_NAME, true);
 							writer = new CSVWriter(fw, '\t');
 							for (Revision currentRevision : page.getRevisions()) {
+								// clean the texts first:
+								String comment = currentRevision.getComment();
+								currentRevision.setComment(WikiCodeCleaner.clean(comment));
+								String text = currentRevision.getText();
+								currentRevision.setText(WikiCodeCleaner.clean(text));
+
 								writer.writeNext(createPrintableRevision(currentRevision));
 							}
 							writer.close();
-						} catch (IOException ex) {
-							Logger.getLogger(PageHistoryHandler.class.getName()).log(Level.SEVERE, null, ex);
+						} catch (IOException e) {
+							logger.log(Level.SEVERE, "Could not write page or revision. The current page has the id: " + page.getId(), e);
 						}
 					}
 				}
@@ -149,6 +165,19 @@ public class PageHistoryHandler extends DefaultHandler {
 		}
 	}
 
+	/**
+	 * <p>
+	 * Unsets flags where needed and writes character data in object's attribute
+	 * that resembles the current element. {@code tmpCharacters} is furthermore
+	 * processed so that we remove all newlines and tabs. We don't expect them to
+	 * be semantically important.
+	 *
+	 * @param ch the characters from the XML document.
+	 * @param start the start position in the array.
+	 * @param length the number of characters to read from the array.
+	 * @throws SAXException any SAX exception, possibly wrapping another
+	 * exception.
+	 */
 	@Override
 	public void characters(char[] ch, int start, int length) throws SAXException {
 		String text = new String(ch, start, length);
@@ -174,11 +203,11 @@ public class PageHistoryHandler extends DefaultHandler {
 				isUserId = false;
 			}
 		} else if (isText) {
-			revision.setText(text);
-			isText = false;
+			assert (!isComment);
+			tmpCharacters.append(text);
 		} else if (isComment) {
-			revision.setComment(text);
-			isComment = false;
+			assert (!isText);
+			tmpCharacters.append(text);
 		} else if (isRevisionId) {
 			revision.setId(text);
 			isRevisionId = false;

@@ -32,6 +32,10 @@ public abstract class AbstractCSVPrintableElement {
 	public final String INACCESSIBLE_ENTRY_STRING = "!INACCESSIBLE ENTRY";
 	protected int attributesAmount = -1;
 
+	/**
+	 * @see #toStringList()
+	 * @return the output of {@code toStringList()} transformed into an array.
+	 */
 	public String[] toStringArray() {
 		ArrayList<String> l = this.toStringList();
 		String[] a = new String[l.size()];
@@ -91,8 +95,7 @@ public abstract class AbstractCSVPrintableElement {
 	 * <p>
 	 * Retrieves all attributes including inherited ones.
 	 * <p>
-	 * The returned list <b>will be</b> sorted although
-	 * {@code getAttributesAmount()} is not.
+	 * The returned list <b>will be</b> sorted.
 	 * <p>
 	 * @see #sort(java.util.ArrayList)
 	 * <p>
